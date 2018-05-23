@@ -10,12 +10,10 @@
     "semantic-ui-react": "^0.80.0"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.0.0-beta.47",
     "babel-preset-env": "^1.7.0",
     "babel-preset-react": "^6.11.1",
     "babelify": "^7.3.0",
-    "presets": [
-      "@babel/preset-env"
-    ],
     "react-scripts": "1.0.7"
   },
   "proxy": "http://backend:8000",
