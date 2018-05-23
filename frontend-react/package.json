@@ -10,7 +10,6 @@
     "semantic-ui-react": "^0.80.0"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.0.0-beta.47",
     "babel-preset-env": "^1.7.0",
     "babel-preset-react": "^6.11.1",
     "babelify": "^7.3.0",

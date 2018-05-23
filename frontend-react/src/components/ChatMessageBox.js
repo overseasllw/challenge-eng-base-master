@@ -8,7 +8,7 @@ class ChatMessageBox extends Component{
         this.messages = []//this.props.messages
     }*/
     render(){
-        var ms = this.props.messages.map(function(m,index) {
+        var ms = this.props.messageList.map(function(m,index) {
            return( <div className="message" key={m.message_id}>
                 <Label>{m.username}</Label>
                 <Label color='blue' pointing='left'>{m.message}</Label>
@@ -24,9 +24,9 @@ class ChatMessageBox extends Component{
             </Segment>
         );
     }
-    shouldComponentUpdate(nextProps){
-        return !(nextProps.messages!== this.props.messages)
-    }
+    /*shouldComponentUpdate(nextProps){
+        return !(nextProps.messageList!== this.props.messageList)
+    }*/
     
 }
 

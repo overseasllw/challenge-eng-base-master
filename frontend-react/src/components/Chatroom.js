@@ -104,7 +104,7 @@ class Chatroom extends Component{
           <UserList/>
         </Grid.Column>
         <Grid.Column width={13} stretched className="contentHeight">
-          <ChatMessageBox onClick={this.sendMessage} messages={this.massages}/>
+          <ChatMessageBox onClick={this.sendMessage} messageList={this.massages}/>
         </Grid.Column>
       </Grid>
       <Segment basic></Segment>
