@@ -4,15 +4,16 @@ import UserList from './UserList';
 import ChatMessageBox from './ChatMessageBox'
 
 class Chatroom extends Component{
-  messages =[]
+  
   constructor(props){
     super(props)
     this.state = {
       message:"",
-      //:[],
+      messageList:[],
       username:"guest_"+this.makeid(),
       modalOpen:false,
     }
+    this.setState({messageList:[]})
    // this.ws //= this.ws.bind(this);
     this.initSocket = this.initSocket.bind(this);
     this.sendMessage = this.sendMessage.bind(this);
@@ -53,9 +54,9 @@ class Chatroom extends Component{
       return res.json();
     }).then((res) => {
        // console.log(this.state.messages)
-     // this.setState({messages:res})
-     this.messages = res
-      console.log(this.messages)
+    this.setState({messageList:res})
+     this.messageList = res
+      console.log(this.messageList)
     }).catch((err) => {
       this.setState({err});
     });
@@ -104,7 +105,7 @@ class Chatroom extends Component{
           <UserList/>
         </Grid.Column>
         <Grid.Column width={13} stretched className="contentHeight">
-          <ChatMessageBox onClick={this.sendMessage} messageList={this.massages}/>
+          <ChatMessageBox onClick={this.sendMessage} messageList={this.state.messageList}/>
         </Grid.Column>
       </Grid>
       <Segment basic></Segment>
