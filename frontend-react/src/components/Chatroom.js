@@ -7,10 +7,12 @@ class Chatroom extends Component{
   
   constructor(props){
     super(props)
+    //var guest = "guest_"+this.makeid()
     this.state = {
       message:"",
       messageList:[],
-      username:"guest_"+this.makeid(),
+      guestname:"guest"+this.makeid(),
+      username:"",
       modalOpen:false,
     }
    // this.setState({messageList:[]})
@@ -18,6 +20,8 @@ class Chatroom extends Component{
     this.sendMessage = this.sendMessage.bind(this);
     this.loginFormOpen =this.loginFormOpen.bind(this)
     this.setUsername = this.setUsername.bind(this)
+    this.close = this.close.bind(this)
+    this.logIn = this.logIn.bind(this)
   }
 
    makeid() {
@@ -40,6 +44,7 @@ class Chatroom extends Component{
       var processedMessages = JSON.parse(msg.data)
       this.setState({ message: msg.data });
      // msg.data.toArray()
+     this.setState({ messageList: [...this.state.messageList, processedMessages[0]] }) 
       console.log(processedMessages[0])
     }
     console.log("init ws connection")
@@ -49,7 +54,7 @@ class Chatroom extends Component{
   }
   componentDidMount(){
     this.initSocket()
-    fetch("http://localhost:18000/api/v1/messages/").then((res) => {
+    fetch("/api/v1/messages/").then((res) => {
       return res.json();
     }).then((res) => {
        // console.log(this.state.messages)
@@ -62,24 +67,39 @@ class Chatroom extends Component{
   }
 
   generateTimestamp () {
-    var iso = new Date().toISOString();
-    return iso.split("T")[1].split(".")[0];
+    var iso = new Date().toDateString() //.toISOString();
+    return iso;//iso.split("T")[1].split(".")[0];
   }
 
   sendMessage (message) {
       this.ws.send(
         JSON.stringify({
-          username: this.state.username,
-          message: (this.generateTimestamp() + " <"+ this.state.username +"> " + message)
+          username: this.state.username===""?this.state.guestname:this.state.username,
+          
+          register:false,
+          message: (this.generateTimestamp() +" " + message)
         })
       );
+  }
+  logIn(){
+    this.ws.send(
+      JSON.stringify({
+        username:this.state.username,
+        guestname:this.state.guestname,
+        register:true,
+        message:""
+      })
+    )
+    this.setState({modalOpen:false})
   }
 
   loginFormOpen(event){
     event.preventDefault();
-    this.setState(prevState => ({...prevState, modalOpen: true}) )
+    this.setState({ modalOpen: true})
   }
-  close = () => this.setState(prevState =>({...prevState, modalOpen: false }))
+  close(event){
+    this.setState({ modalOpen: false })
+  }
   render(){
     return (
     <Container className="chatBoard">
@@ -120,7 +140,7 @@ class Chatroom extends Component{
             <Button negative>
               No
             </Button>
-            <Button positive icon='checkmark' labelPosition='right' content='Yes' onClick={this.sendMessage}/>
+            <Button positive icon='checkmark' labelPosition='right' content='Yes' onClick={this.logIn}/>
           </Modal.Actions>
         </Modal>
     </Container>

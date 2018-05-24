@@ -10,6 +10,7 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
+	"github.com/twinj/uuid"
 )
 
 type ChatServer struct {
@@ -56,6 +57,10 @@ func (server *ChatServer) Join(msg model.Message, conn *websocket.Conn) *Client 
 		}
 		return client
 	}
+	if msg.Register != nil && *msg.Register == true {
+		server.OnlineUsers[*msg.Username] = server.OnlineUsers[*msg.Guestname]
+		delete(server.OnlineUsers, *msg.Guestname)
+	}
 	if _, exists := server.OnlineUsers[*msg.Username]; exists && len(*msg.Username) >= 3 {
 		u := server.OnlineUsers[*msg.Username]
 		return &u
@@ -73,12 +78,13 @@ func (server *ChatServer) Join(msg model.Message, conn *websocket.Conn) *Client 
 	server.OnlineUsers[*msg.Username] = *client
 
 	server.AddMessage(model.Message{
-		MessageID:      3232,
+		MessageID:      uuid.NewV4().String(),
 		MessageType:    "system-message",
 		CreatedAt:      time.Now(),
 		MessageContent: getPointer(*msg.Username + " has joined the chat."),
 		//	User:           model.User{Username: name},
 	})
+
 	client.Send([]*model.Message{
 		&msg,
 	})
@@ -93,7 +99,7 @@ func (server *ChatServer) Leave(name string) {
 
 	server.AddMessage(
 		model.Message{
-			MessageID:      332,
+			MessageID:      uuid.NewV4().String(),
 			MessageType:    "system-message",
 			CreatedAt:      time.Now(),
 			MessageContent: getPointer(name + " has left the chat."),
@@ -127,6 +133,7 @@ func Listen(server *ChatServer, c echo.Context) error {
 	defer ws.Close()
 	msg := model.Message{}
 	err = ws.ReadJSON(&msg)
+	msg.MessageID = uuid.NewV4().String()
 	if err != nil {
 		if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 			log.Printf("error: %v", err)
@@ -146,6 +153,7 @@ func Listen(server *ChatServer, c echo.Context) error {
 	for {
 		msg := model.Message{}
 		err = ws.ReadJSON(&msg)
+		msg.MessageID = uuid.NewV4().String()
 		j, _ := json.Marshal(msg)
 		log.Print(string(j))
 		if err != nil {

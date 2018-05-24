@@ -8,7 +8,7 @@ import (
 
 type (
 	Message struct {
-		MessageID      int64     `json:"message_id"`
+		MessageID      string    `json:"message_id"`
 		MessageType    string    `json:"message_type"`
 		CreatedAt      time.Time `json:"created_at,omitempty"`
 		MessageContent *string   `json:"message"`

@@ -8,7 +8,7 @@ class ChatMessageBox extends Component{
     render(){
         return (
             <Segment className="contentHeight">
-                <Container className="messageBox">
+                <Container className="messageBox transition visible"  >
                 {
                     this.props.messageList.map((m)=> 
                     <div className="message" key={m.message_id}>

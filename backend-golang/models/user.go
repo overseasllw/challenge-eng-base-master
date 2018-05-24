@@ -7,4 +7,6 @@ type User struct {
 	Username  *string   `json:"username"`
 	LastLogin time.Time `json:"last_login"`
 	CreatedAt time.Time `json:"created_at"`
+	Register  *bool     `json:"register"`
+	Guestname *string   `json:"geustname"`
 }
