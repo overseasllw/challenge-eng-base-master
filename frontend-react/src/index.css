@@ -32,6 +32,7 @@ pre {
 
 .messageBox{
   width: 100%;
+  overflow:auto;
   padding-left: 5px;
   padding-right: 5px;
   height: -moz-calc(100% - (80px));
@@ -52,6 +53,5 @@ pre {
   height: 100%;
 }
 .message{
-  overflow:auto;
   margin-top: 5px;
 }

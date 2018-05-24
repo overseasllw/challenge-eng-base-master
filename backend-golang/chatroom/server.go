@@ -18,7 +18,7 @@ type ChatServer struct {
 	OnlineUsers  map[string]Client
 	NewMessage   chan *model.Message
 	OfflineUsers map[string]Client
-	AllMessages  []*model.Message
+	NewUser      chan *Client
 }
 
 var (
@@ -31,10 +31,11 @@ var (
 
 func NewServer() (server *ChatServer) {
 	return &ChatServer{
-		AllMessages:  []*model.Message{},
+		//	AllMessages:  []*model.Message{},
 		NewMessage:   make(chan *model.Message, 5),
 		OnlineUsers:  make(map[string]Client),
 		OfflineUsers: make(map[string]Client),
+		NewUser:      make(chan *Client, 5),
 	}
 }
 
@@ -77,7 +78,7 @@ func (server *ChatServer) Join(msg model.Message, conn *websocket.Conn) *Client 
 		Server: server,
 	}
 	server.OnlineUsers[*msg.Username] = *client
-
+	server.updateOnlineUserList(client)
 	server.AddMessage(model.Message{
 		MessageID:      uuid.NewV4().String(),
 		MessageType:    "system-message",
@@ -117,7 +118,7 @@ func (server *ChatServer) AddMessage(message model.Message) {
 	server.NewMessage <- &message
 	if message.Username != nil {
 		//StoreMessage(message)
-		server.AllMessages = append(server.AllMessages, &message)
+		//server.AllMessages = append(server.AllMessages, &message)
 	}
 }
 
@@ -151,6 +152,7 @@ func Listen(server *ChatServer, c echo.Context) error {
 		log.Print(err)
 		return err
 	}
+	//server.updateOnlineUserList(user)
 	for {
 		msg := model.Message{}
 		err = ws.ReadJSON(&msg)
@@ -178,18 +180,38 @@ func Listen(server *ChatServer, c echo.Context) error {
 	//return err
 }
 
+func (server *ChatServer) updateOnlineUserList(client *Client) {
+	server.NewUser <- client
+}
+
 // Broadcasting all the messages in the queue in one block
 func (server *ChatServer) BroadCast() {
 
 	messages := make([]*model.Message, 0)
-
+	userList := make(map[string]interface{})
 InfiLoop:
 	for {
 		select {
 		case message := <-server.NewMessage:
 			messages = append(messages, message)
+		case <-server.NewUser:
+			//	user["username"] = *newUser.Username
+			//	user["created_at"] = time.Now().String()
+			userList["message_type"] = "user_list"
+			us := []model.User{}
+			for _, c := range server.OnlineUsers {
+				us = append(us, c.User)
+			}
+			userList["list"] = us
 		default:
 			break InfiLoop
+		}
+	}
+	if len(userList) > 0 {
+		for _, client := range server.OnlineUsers {
+			client.Socket.WriteJSON([]map[string]interface{}{
+				userList,
+			})
 		}
 	}
 

@@ -13,6 +13,7 @@ class Chatroom extends Component{
       messageList:[],
       guestname:"guest"+this.makeid(),
       username:"",
+      userList:[],
       modalOpen:false,
     }
    // this.setState({messageList:[]})
@@ -41,13 +42,17 @@ class Chatroom extends Component{
   initSocket () {
     this.ws = new WebSocket("ws://localhost:18000/ws");
     this.ws.onmessage = (msg) => {
-      var processedMessages = JSON.parse(msg.data)
+      var prd_msg = JSON.parse(msg.data)
       this.setState({ message: msg.data });
-     // msg.data.toArray()
-     if (processedMessages[0].message!==""){
-        this.setState({ messageList: [...this.state.messageList, processedMessages[0]] }) 
-        console.log(processedMessages[0])
-     }
+     if (prd_msg[0].message_type==='user_list'){
+       this.setState({userList:[...this.state.userList,prd_msg[0].list]})
+       console.log(this.state.userList)
+     }else{
+        if (prd_msg[0].message!==""){
+            this.setState({ messageList: [...this.state.messageList, prd_msg[0]] }) 
+            console.log(prd_msg[0])
+        }
+      }
     }
     console.log("init ws connection")
     this.ws.onopen =()=>{
