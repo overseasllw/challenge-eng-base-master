@@ -40,7 +40,8 @@ class Chatroom extends Component{
     this.setState({username:event.target.value})
 }
   initSocket () {
-    this.ws = new WebSocket("ws://localhost:18000/ws");
+    var hostname=(window.location.hostname)
+    this.ws = new WebSocket("ws://"+hostname+":18000/ws");
     this.ws.onmessage = (msg) => {
       var prd_msg = JSON.parse(msg.data)
       this.setState({ message: msg.data });

@@ -2,7 +2,6 @@ package chatroom
 
 import (
 	model "app/models"
-	"encoding/json"
 	"log"
 	"strings"
 	//	"math"
@@ -19,6 +18,7 @@ type ChatServer struct {
 	NewMessage   chan *model.Message
 	OfflineUsers map[string]Client
 	NewUser      chan *Client
+	//	OnlineUserList chan string
 }
 
 var (
@@ -59,16 +59,24 @@ func (server *ChatServer) Join(msg model.Message, conn *websocket.Conn) *Client 
 		}
 		return client
 	}
-	log.Print("join")
-	m, _ := json.Marshal(msg)
-	log.Print(string(m))
+	//log.Print("join")
+	//m, _ := json.Marshal(msg)
+	//log.Print(string(m))
 	if msg.Register != nil && *msg.Register == true {
 		gue := server.OnlineUsers[*msg.Guestname]
 		gue.Username = msg.Username
+		gue.Socket = conn
+		gue.Server = server
 		server.OnlineUsers[*msg.Username] = gue
 		//u.Username = msg.Username
-
-		delete(server.OnlineUsers, *msg.Guestname)
+		//delete(server.OnlineUsers, *msg.Guestname)
+		server.AddMessage(model.Message{
+			MessageID:      uuid.NewV4().String(),
+			MessageType:    "system-message",
+			CreatedAt:      time.Now(),
+			MessageContent: getPointer(*msg.Username + " has joined the chat."),
+			//	User:           model.User{Username: name},
+		})
 	}
 
 	if _, exists := server.OnlineUsers[*msg.Username]; exists && len(*msg.Username) >= 3 {
@@ -146,8 +154,8 @@ func Listen(server *ChatServer, c echo.Context) error {
 	msg := model.Message{}
 	err = ws.ReadJSON(&msg)
 	msg.MessageID = uuid.NewV4().String()
-	j, _ := json.Marshal(msg)
-	log.Print(string(j))
+	//j, _ := json.Marshal(msg)
+	//log.Print(string(j))
 	if err != nil {
 		if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 			log.Printf("error: %v", err)
@@ -201,8 +209,15 @@ func Listen(server *ChatServer, c echo.Context) error {
 
 func (server *ChatServer) updateOnlineUserList(client *Client) {
 	server.NewUser <- client
-	//c, _ := json.Marshal(client)
-	//log.Print(string(c))
+}
+
+func (server *ChatServer) GetUserList() {
+	log.Print("hello online")
+	server.updateOnlineUserList(&Client{
+		User: model.User{
+			UserID: 1000,
+		},
+	})
 }
 
 // Broadcasting all the messages in the queue in one block

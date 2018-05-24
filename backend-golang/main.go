@@ -42,14 +42,18 @@ func main() {
 	e.GET("/test", chat.GetMessageListHandler)
 	// message api
 	//e.POST("/api/v1/messages/", chat.PostMessageHandler)
-	e.GET("/api/v1/messages/", chat.GetMessageListHandler)
+
 	server := chatroom.NewServer()
 	go server.Init()
 	e.GET("/ws", func(c echo.Context) error {
 		chatroom.Listen(server, c)
 		return nil
 	})
-
+	e.GET("/api/v1/messages/", func(c echo.Context) error {
+		server.GetUserList()
+		err := chat.GetMessageListHandler(c)
+		return err
+	})
 	e.Logger.Fatal(e.Start(":8000"))
 
 	/*	if err := http.ListenAndServe(":8000", nil); err != nil {
