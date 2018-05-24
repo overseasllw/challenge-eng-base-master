@@ -11,7 +11,7 @@ class Chatroom extends Component{
     this.state = {
       message:"",
       messageList:[],
-      guestname:"guest"+this.makeid(),
+      guestname:"guest_"+this.makeid(),
       username:"",
       userList:[],
       modalOpen:false,
@@ -45,7 +45,7 @@ class Chatroom extends Component{
       var prd_msg = JSON.parse(msg.data)
       this.setState({ message: msg.data });
      if (prd_msg[0].message_type==='user_list'){
-       this.setState({userList:[...this.state.userList,prd_msg[0].list]})
+       this.setState({userList:prd_msg[0].list})
        console.log(this.state.userList)
      }else{
         if (prd_msg[0].message!==""){
@@ -74,7 +74,7 @@ class Chatroom extends Component{
   }
 
   generateTimestamp () {
-    var iso = new Date().toDateString() //.toISOString();
+    var iso = new Date().toTimeString() //.toISOString();
     return iso;//iso.split("T")[1].split(".")[0];
   }
 
@@ -82,9 +82,9 @@ class Chatroom extends Component{
       this.ws.send(
         JSON.stringify({
           username: this.state.username===""?this.state.guestname:this.state.username,
-          
           register:false,
-          message: (this.generateTimestamp() +" " + message)
+          guestname:this.state.guestname,
+          message: (message+" ("+this.generateTimestamp()+")")
         })
       );
   }
@@ -128,7 +128,7 @@ class Chatroom extends Component{
       </div>
       <Grid  divided className="bottom attached segment contentHeight">
         <Grid.Column width={3} stretched>
-          <UserList/>
+          <UserList userList={this.state.userList}/>
         </Grid.Column>
         <Grid.Column width={13} stretched className="contentHeight">
           <ChatMessageBox onClick={this.sendMessage} messageList={this.state.messageList}/>

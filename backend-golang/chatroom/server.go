@@ -59,17 +59,27 @@ func (server *ChatServer) Join(msg model.Message, conn *websocket.Conn) *Client 
 		}
 		return client
 	}
+	log.Print("join")
+	m, _ := json.Marshal(msg)
+	log.Print(string(m))
 	if msg.Register != nil && *msg.Register == true {
-		server.OnlineUsers[*msg.Username] = server.OnlineUsers[*msg.Guestname]
+		gue := server.OnlineUsers[*msg.Guestname]
+		gue.Username = msg.Username
+		server.OnlineUsers[*msg.Username] = gue
+		//u.Username = msg.Username
+
 		delete(server.OnlineUsers, *msg.Guestname)
 	}
+
 	if _, exists := server.OnlineUsers[*msg.Username]; exists && len(*msg.Username) >= 3 {
 		u := server.OnlineUsers[*msg.Username]
+		server.updateOnlineUserList(&u)
 		return &u
 	} else if _, exists := server.OfflineUsers[*msg.Username]; exists && len(*msg.Username) >= 3 {
 		u := server.OfflineUsers[*msg.Username]
 		delete(server.OfflineUsers, *msg.Username)
 		server.OnlineUsers[*msg.Username] = u
+		server.updateOnlineUserList(&u)
 		return &u
 	}
 	client := &Client{
@@ -136,6 +146,8 @@ func Listen(server *ChatServer, c echo.Context) error {
 	msg := model.Message{}
 	err = ws.ReadJSON(&msg)
 	msg.MessageID = uuid.NewV4().String()
+	j, _ := json.Marshal(msg)
+	log.Print(string(j))
 	if err != nil {
 		if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 			log.Printf("error: %v", err)
@@ -152,18 +164,12 @@ func Listen(server *ChatServer, c echo.Context) error {
 		log.Print(err)
 		return err
 	}
-	//server.updateOnlineUserList(user)
+
 	for {
 		msg := model.Message{}
 		err = ws.ReadJSON(&msg)
 		msg.MessageID = uuid.NewV4().String()
-		if user.Username != nil && msg.Username != nil {
-			if strings.TrimSpace(*user.Username) != strings.TrimSpace(*msg.Username) {
-				user.Username = msg.Username
-			}
-		}
-		j, _ := json.Marshal(msg)
-		log.Print(string(j))
+
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Printf("error: %v", err)
@@ -171,9 +177,22 @@ func Listen(server *ChatServer, c echo.Context) error {
 				log.Print(err)
 			}
 			user.Exit()
+			server.updateOnlineUserList(user)
 			return err
 		}
+		if user.Username != nil && msg.Username != nil {
+			if strings.TrimSpace(*user.Username) != strings.TrimSpace(*msg.Username) {
+				delete(server.OnlineUsers, *msg.Guestname)
+				user.Username = msg.Username
+				user.Register = msg.Register
+				user.Guestname = msg.Guestname
+				server.OnlineUsers[*user.Username] = *user
+				server.updateOnlineUserList(user)
+				//c, _ := json.Marshal(user)
+				//log.Print(string(c))
+			}
 
+		}
 		// Write
 		user.NewMessage(msg)
 	}
@@ -182,6 +201,8 @@ func Listen(server *ChatServer, c echo.Context) error {
 
 func (server *ChatServer) updateOnlineUserList(client *Client) {
 	server.NewUser <- client
+	//c, _ := json.Marshal(client)
+	//log.Print(string(c))
 }
 
 // Broadcasting all the messages in the queue in one block
