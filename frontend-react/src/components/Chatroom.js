@@ -13,8 +13,7 @@ class Chatroom extends Component{
       username:"guest_"+this.makeid(),
       modalOpen:false,
     }
-    this.setState({messageList:[]})
-   // this.ws //= this.ws.bind(this);
+   // this.setState({messageList:[]})
     this.initSocket = this.initSocket.bind(this);
     this.sendMessage = this.sendMessage.bind(this);
     this.loginFormOpen =this.loginFormOpen.bind(this)
@@ -38,25 +37,25 @@ class Chatroom extends Component{
   initSocket () {
     this.ws = new WebSocket("ws://localhost:18000/ws");
     this.ws.onmessage = (msg) => {
-      //console.log(msg.data)
+      var processedMessages = JSON.parse(msg.data)
       this.setState({ message: msg.data });
-   //   this.state.messages.concat(this.state.messages);
-      console.log(this.state.message)
+     // msg.data.toArray()
+      console.log(processedMessages[0])
     }
-    console.log("init")
+    console.log("init ws connection")
     this.ws.onopen =()=>{
-     console.log("connected")
+      console.log("connected")
     }
   }
   componentDidMount(){
     this.initSocket()
-    fetch("/api/v1/messages/").then((res) => {
+    fetch("http://localhost:18000/api/v1/messages/").then((res) => {
       return res.json();
     }).then((res) => {
        // console.log(this.state.messages)
     this.setState({messageList:res})
      this.messageList = res
-      console.log(this.messageList)
+    //  console.log(this.messageList)
     }).catch((err) => {
       this.setState({err});
     });
