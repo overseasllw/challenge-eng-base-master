@@ -4,6 +4,7 @@ import (
 	model "app/models"
 	"encoding/json"
 	"log"
+	"strings"
 	//	"math"
 	"net/http"
 	"time"
@@ -154,6 +155,11 @@ func Listen(server *ChatServer, c echo.Context) error {
 		msg := model.Message{}
 		err = ws.ReadJSON(&msg)
 		msg.MessageID = uuid.NewV4().String()
+		if user.Username != nil && msg.Username != nil {
+			if strings.TrimSpace(*user.Username) != strings.TrimSpace(*msg.Username) {
+				user.Username = msg.Username
+			}
+		}
 		j, _ := json.Marshal(msg)
 		log.Print(string(j))
 		if err != nil {

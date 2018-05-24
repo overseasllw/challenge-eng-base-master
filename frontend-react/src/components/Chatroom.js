@@ -44,8 +44,10 @@ class Chatroom extends Component{
       var processedMessages = JSON.parse(msg.data)
       this.setState({ message: msg.data });
      // msg.data.toArray()
-     this.setState({ messageList: [...this.state.messageList, processedMessages[0]] }) 
-      console.log(processedMessages[0])
+     if (processedMessages[0].message!==""){
+        this.setState({ messageList: [...this.state.messageList, processedMessages[0]] }) 
+        console.log(processedMessages[0])
+     }
     }
     console.log("init ws connection")
     this.ws.onopen =()=>{

@@ -11,10 +11,18 @@ class ChatMessageBox extends Component{
                 <Container className="messageBox transition visible"  >
                 {
                     this.props.messageList.map((m)=> 
-                    <div className="message" key={m.message_id}>
-                        <Label>{m.username}</Label>
-                        <Label color='blue' pointing='left'>{m.message}</Label>
-                    </div>)
+                    {
+                        if(m.message_type!=="system-message"){
+                            return  <div className="message" key={m.message_id}>
+                                    <Label>{m.username}</Label>
+                                    <Label color='blue' pointing='left'>{m.message}</Label>
+                                </div>
+                        }
+                            return <div className="message" key={m.message_id}>
+                                    <Label color='orange'>{m.message}</Label>
+                                </div>
+                        
+                    })    
                 }
                 </Container>
                 <Divider horizontal>Message</Divider>

@@ -52,5 +52,6 @@ pre {
   height: 100%;
 }
 .message{
+  overflow:auto;
   margin-top: 5px;
 }
