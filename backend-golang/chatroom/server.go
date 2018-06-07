@@ -19,7 +19,6 @@ type ChatServer struct {
 	NewMessage   chan *model.Message
 	OfflineUsers map[string]Client
 	NewUser      chan *Client
-	//	OnlineUserList chan string
 }
 
 var (
@@ -60,6 +59,9 @@ func (server *ChatServer) Join(msg model.Message, conn *websocket.Conn) *Client 
 		}
 		return client
 	}
+	uid := chat.CreateNewUser(*msg.Username)
+	msg.UserID = uid
+	
 
 	if msg.Register != nil && *msg.Register == true {
 		gue := server.OnlineUsers[*msg.Guestname]
@@ -90,14 +92,11 @@ func (server *ChatServer) Join(msg model.Message, conn *websocket.Conn) *Client 
 		return &u
 	}
 	client := &Client{
-		User:   model.User{Username: msg.Username},
+		User:   model.User{Username: msg.Username,UserID:msg.UserID},
 		Socket: conn,
 		Server: server,
 	}
-	go func() {
-		uid := chat.CreateNewUser(*msg.Username)
-		msg.UserID = uid
-	}()
+
 	server.OnlineUsers[*msg.Username] = *client
 	server.updateOnlineUserList(client)
 	server.AddMessage(model.Message{
@@ -136,12 +135,9 @@ func getPointer(s string) *string {
 
 // Adding message to queue
 func (server *ChatServer) AddMessage(message model.Message) {
-	//message.MessageType = "user-message"
 	server.NewMessage <- &message
 	if message.Username != nil {
-		//StoreMessage(message)
-		//server.AllMessages = append(server.AllMessages, &message)
-		if *message.Username != "system" {
+		if message.UserID != 0 {
 			uid := chat.CheckUserExist(*message.Username)
 			if uid != nil {
 				message.UserID = *uid
@@ -158,7 +154,6 @@ func Listen(server *ChatServer, c echo.Context) error {
 	ws.SetPongHandler(func(string) error { ws.SetReadDeadline(time.Now().Add(pongWait)); return nil })
 
 	if err != nil {
-		//	log.Print(err)
 		ws.Close()
 		return err
 	}
@@ -181,7 +176,7 @@ func Listen(server *ChatServer, c echo.Context) error {
 	user := server.Join(msg, ws)
 
 	if user == nil {
-		log.Print(err)
+	//	log.Print(err)
 		return err
 	}
 
@@ -209,8 +204,6 @@ func Listen(server *ChatServer, c echo.Context) error {
 				user.Guestname = msg.Guestname
 				server.OnlineUsers[*user.Username] = *user
 				server.updateOnlineUserList(user)
-				//c, _ := json.Marshal(user)
-				//log.Print(string(c))
 			}
 
 		}
