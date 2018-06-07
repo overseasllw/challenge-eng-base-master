@@ -50,7 +50,7 @@ func main() {
 		return nil
 	})
 	e.GET("/api/v1/messages/", func(c echo.Context) error {
-		server.GetUserList()
+		//	server.GetUserList()
 		err := chat.GetMessageListHandler(c)
 		return err
 	})

@@ -20,7 +20,7 @@ func PostMessageHandler(c echo.Context) (err error) {
 	}
 
 	if m.UserID == 0 && m.Username != nil {
-		if uId := checkUserExist(*m.Username); uId != nil {
+		if uId := CheckUserExist(*m.Username); uId != nil {
 			m.UserID = *uId
 		}
 	}
@@ -29,7 +29,7 @@ func PostMessageHandler(c echo.Context) (err error) {
 		m.Username = &uname
 	}
 	if m.UserID == 0 {
-		m.UserID = createNewUser(*m.Username)
+		m.UserID = CreateNewUser(*m.Username)
 	}
 	ins, err := common.DB.Prepare(`insert into message(user_id,message_content,created_at)
 		values(?,?,CURRENT_TIMESTAMP())`)
@@ -44,8 +44,8 @@ func PostMessageHandler(c echo.Context) (err error) {
 }
 
 func GetMessageListHandler(c echo.Context) (err error) {
-	rows, err := common.DB.Query(`select m.message_id,m.user_id,m.message_content,m.created_at,
-		u.username from message m 
+	rows, err := common.DB.Query(`select m.message_uuid, m.message_id,m.user_id,m.message_content,m.created_at,
+		u.username,message_type from message m 
 		join user_ u on u.user_id =  m.user_id
 		order by created_at asc limit 100`)
 	if err != nil && err != sql.ErrNoRows {
@@ -55,9 +55,41 @@ func GetMessageListHandler(c echo.Context) (err error) {
 	messages := []model.Message{}
 	for rows.Next() {
 		m := model.Message{}
-		rows.Scan(&m.MessageID, &m.UserID, &m.MessageContent,
-			&m.CreatedAt, &m.Username)
+		rows.Scan(&m.UUID, &m.MessageID, &m.UserID, &m.MessageContent,
+			&m.CreatedAt, &m.Username, &m.MessageType)
 		messages = append(messages, m)
 	}
 	return c.JSON(200, messages)
+}
+
+func GetAllMessageList() (messages []*model.Message, err error) {
+	rows, err := common.DB.Query(`select m.uuid,m.message_id,m.user_id,m.message_content,m.created_at,
+		u.username,message_type from message m 
+		join user_ u on u.user_id =  m.user_id 
+		order by created_at asc limit 100`)
+	if err != nil && err != sql.ErrNoRows {
+		return
+	}
+	defer rows.Close()
+	messages = []*model.Message{}
+	for rows.Next() {
+		m := model.Message{}
+		rows.Scan(&m.UUID, &m.MessageID, &m.UserID, &m.MessageContent,
+			&m.CreatedAt, &m.Username, &m.MessageType)
+		messages = append(messages, &m)
+	}
+	return messages, err
+}
+
+func CreateNewMessage(message *model.Message) (err error) {
+	ins, err := common.DB.Prepare(`insert into message(message_uuid,user_id,message_type,message_content,created_at)
+		values(?,?,?,?,CURRENT_TIMESTAMP())`)
+	if err != nil {
+		return err
+	}
+	_, err = ins.Exec(message.UUID, message.UserID, message.MessageType, message.MessageContent)
+	if err != nil {
+		return err
+	}
+	return
 }

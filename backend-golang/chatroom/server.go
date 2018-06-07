@@ -5,6 +5,7 @@ import (
 	"log"
 	"strings"
 	//	"math"
+	chat "app/chat"
 	"net/http"
 	"time"
 
@@ -59,9 +60,7 @@ func (server *ChatServer) Join(msg model.Message, conn *websocket.Conn) *Client 
 		}
 		return client
 	}
-	//log.Print("join")
-	//m, _ := json.Marshal(msg)
-	//log.Print(string(m))
+
 	if msg.Register != nil && *msg.Register == true {
 		gue := server.OnlineUsers[*msg.Guestname]
 		gue.Username = msg.Username
@@ -71,11 +70,11 @@ func (server *ChatServer) Join(msg model.Message, conn *websocket.Conn) *Client 
 		//u.Username = msg.Username
 		//delete(server.OnlineUsers, *msg.Guestname)
 		server.AddMessage(model.Message{
-			MessageID:      uuid.NewV4().String(),
+			UUID:           uuid.NewV4().String(),
 			MessageType:    "system-message",
 			CreatedAt:      time.Now(),
 			MessageContent: getPointer(*msg.Username + " has joined the chat."),
-			//	User:           model.User{Username: name},
+			User:           model.User{UserID: 0, Username: getPointer("system")},
 		})
 	}
 
@@ -95,14 +94,18 @@ func (server *ChatServer) Join(msg model.Message, conn *websocket.Conn) *Client 
 		Socket: conn,
 		Server: server,
 	}
+	go func() {
+		uid := chat.CreateNewUser(*msg.Username)
+		msg.UserID = uid
+	}()
 	server.OnlineUsers[*msg.Username] = *client
 	server.updateOnlineUserList(client)
 	server.AddMessage(model.Message{
-		MessageID:      uuid.NewV4().String(),
+		UUID:           uuid.NewV4().String(),
 		MessageType:    "system-message",
 		CreatedAt:      time.Now(),
 		MessageContent: getPointer(*msg.Username + " has joined the chat."),
-		//	User:           model.User{Username: name},
+		User:           model.User{UserID: 0, Username: getPointer("system")},
 	})
 
 	client.Send([]*model.Message{
@@ -119,10 +122,11 @@ func (server *ChatServer) Leave(name string) {
 
 	server.AddMessage(
 		model.Message{
-			MessageID:      uuid.NewV4().String(),
+			UUID:           uuid.NewV4().String(),
 			MessageType:    "system-message",
 			CreatedAt:      time.Now(),
 			MessageContent: getPointer(name + " has left the chat."),
+			User:           model.User{UserID: 0, Username: getPointer("system")},
 		})
 }
 
@@ -137,6 +141,14 @@ func (server *ChatServer) AddMessage(message model.Message) {
 	if message.Username != nil {
 		//StoreMessage(message)
 		//server.AllMessages = append(server.AllMessages, &message)
+		if *message.Username != "system" {
+			uid := chat.CheckUserExist(*message.Username)
+			if uid != nil {
+				message.UserID = *uid
+
+			}
+		}
+		chat.CreateNewMessage(&message)
 	}
 }
 
@@ -153,7 +165,7 @@ func Listen(server *ChatServer, c echo.Context) error {
 	defer ws.Close()
 	msg := model.Message{}
 	err = ws.ReadJSON(&msg)
-	msg.MessageID = uuid.NewV4().String()
+	msg.UUID = uuid.NewV4().String()
 	//j, _ := json.Marshal(msg)
 	//log.Print(string(j))
 	if err != nil {
@@ -176,7 +188,7 @@ func Listen(server *ChatServer, c echo.Context) error {
 	for {
 		msg := model.Message{}
 		err = ws.ReadJSON(&msg)
-		msg.MessageID = uuid.NewV4().String()
+		msg.UUID = uuid.NewV4().String()
 
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
@@ -190,6 +202,7 @@ func Listen(server *ChatServer, c echo.Context) error {
 		}
 		if user.Username != nil && msg.Username != nil {
 			if strings.TrimSpace(*user.Username) != strings.TrimSpace(*msg.Username) {
+				chat.UpdateUser(*user.Username, *msg.Username)
 				delete(server.OnlineUsers, *msg.Guestname)
 				user.Username = msg.Username
 				user.Register = msg.Register
@@ -209,15 +222,7 @@ func Listen(server *ChatServer, c echo.Context) error {
 
 func (server *ChatServer) updateOnlineUserList(client *Client) {
 	server.NewUser <- client
-}
 
-func (server *ChatServer) GetUserList() {
-	log.Print("hello online")
-	server.updateOnlineUserList(&Client{
-		User: model.User{
-			UserID: 1000,
-		},
-	})
 }
 
 // Broadcasting all the messages in the queue in one block
