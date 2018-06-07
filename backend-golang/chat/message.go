@@ -47,6 +47,7 @@ func GetMessageListHandler(c echo.Context) (err error) {
 	rows, err := common.DB.Query(`select m.message_uuid, m.message_id,m.user_id,m.message_content,m.created_at,
 		u.username,message_type from message m 
 		join user_ u on u.user_id =  m.user_id
+		where m.message_content !=""
 		order by created_at asc limit 100`)
 	if err != nil && err != sql.ErrNoRows {
 		return c.JSON(400, err.Error())

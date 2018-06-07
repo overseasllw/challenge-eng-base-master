@@ -15,7 +15,7 @@
     "babelify": "^7.3.0",
     "react-scripts": "1.0.7"
   },
-  "proxy": "http://backend:18000",
+  "proxy": "http://backend:8000",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",

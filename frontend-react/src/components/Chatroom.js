@@ -66,8 +66,8 @@ class Chatroom extends Component{
       return res.json();
     }).then((res) => {
        // console.log(this.state.messages)
-    this.setState({messageList:res})
-     this.messageList = res
+      this.setState({messageList:res})
+      this.messageList = res
     //  console.log(this.messageList)
     }).catch((err) => {
       this.setState({err});
