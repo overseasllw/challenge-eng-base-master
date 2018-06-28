@@ -54,6 +54,9 @@ func main() {
 		err := chat.GetMessageListHandler(c)
 		return err
 	})
+
+	e.POST("/api/v1/rooms/", chat.CreateNewRoomHandler)
+	e.GET("/api/v1/rooms/", chat.GetRoomListHandler)
 	e.Logger.Fatal(e.Start(":8000"))
 
 	/*	if err := http.ListenAndServe(":8000", nil); err != nil {

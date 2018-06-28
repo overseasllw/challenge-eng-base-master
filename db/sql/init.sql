@@ -31,3 +31,21 @@ CREATE TABLE IF NOT EXISTS message
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY(message_id)
 );
+
+CREATE TABLE IF NOT EXISTS room
+(
+  room_id INT (10) NOT NULL AUTO_INCREMENT,
+  room_uuid varchar(50),
+  room_name varchar(50),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY(room_id)
+);
+
+CREATE TABLE IF NOT EXISTS room_user
+(
+  room_user_id INT (10) NOT NULL AUTO_INCREMENT,
+  room_uuid varchar(50),
+  user_id int(10),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY(room_user_id)
+);

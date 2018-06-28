@@ -19,6 +19,7 @@ type ChatServer struct {
 	NewMessage   chan *model.Message
 	OfflineUsers map[string]Client
 	NewUser      chan *Client
+	RoomId       string
 }
 
 var (
@@ -61,7 +62,6 @@ func (server *ChatServer) Join(msg model.Message, conn *websocket.Conn) *Client 
 	}
 	uid := chat.CreateNewUser(*msg.Username)
 	msg.UserID = uid
-	
 
 	if msg.Register != nil && *msg.Register == true {
 		gue := server.OnlineUsers[*msg.Guestname]
@@ -92,7 +92,7 @@ func (server *ChatServer) Join(msg model.Message, conn *websocket.Conn) *Client 
 		return &u
 	}
 	client := &Client{
-		User:   model.User{Username: msg.Username,UserID:msg.UserID},
+		User:   model.User{Username: msg.Username, UserID: msg.UserID},
 		Socket: conn,
 		Server: server,
 	}
@@ -176,7 +176,7 @@ func Listen(server *ChatServer, c echo.Context) error {
 	user := server.Join(msg, ws)
 
 	if user == nil {
-	//	log.Print(err)
+		//	log.Print(err)
 		return err
 	}
 
@@ -186,13 +186,13 @@ func Listen(server *ChatServer, c echo.Context) error {
 		msg.UUID = uuid.NewV4().String()
 
 		if err != nil {
+			user.Exit()
+			server.updateOnlineUserList(user)
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Printf("error: %v", err)
 			} else {
 				log.Print(err)
 			}
-			user.Exit()
-			server.updateOnlineUserList(user)
 			return err
 		}
 		if user.Username != nil && msg.Username != nil {
