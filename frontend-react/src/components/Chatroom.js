@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Grid, Container,Menu,Button, Icon, Segment, Modal,Input} from 'semantic-ui-react'
+import { Grid, Container,Menu,Button, Icon, Segment, Modal,Input,Dropdown} from 'semantic-ui-react'
 import UserList from './UserList';
 import ChatMessageBox from './ChatMessageBox'
 
@@ -14,6 +14,7 @@ class Chatroom extends Component{
       guestname:"guest_"+this.makeid(),
       username:"",
       userList:[],
+      roomOptions:[{key:'liwei',value:'liwei',text:'Liwei'}],
       modalOpen:false,
     }
    // this.setState({messageList:[]})
@@ -118,6 +119,15 @@ class Chatroom extends Component{
             </Menu.Item>
             <Menu.Item name='side layout' active >
               Chat Room
+            </Menu.Item>
+            <Menu.Item name='side layout' active >
+              <Button icon labelPosition='left' color="teal" onClick={this.loginFormOpen}>
+                <Icon name='user circle' />
+                New Room
+              </Button>
+            </Menu.Item>
+            <Menu.Item name='side layout' active >
+              <Dropdown placeholder='Room' search selection options={this.roomOptions} />
             </Menu.Item>
             <Menu.Item name='login' position="right" active >
               <Button icon labelPosition='left' color="teal" onClick={this.loginFormOpen}>
