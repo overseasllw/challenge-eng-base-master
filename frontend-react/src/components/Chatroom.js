@@ -14,8 +14,11 @@ class Chatroom extends Component{
       guestname:"guest_"+this.makeid(),
       username:"",
       userList:[],
-      roomOptions:[{key:'liwei',value:'liwei',text:'Liwei'}],
+      currentRoom:"",
+      newRoomName:"",
+      roomOptions:[],
       modalOpen:false,
+      roomModal:false,
     }
    // this.setState({messageList:[]})
     this.initSocket = this.initSocket.bind(this);
@@ -24,6 +27,9 @@ class Chatroom extends Component{
     this.setUsername = this.setUsername.bind(this)
     this.close = this.close.bind(this)
     this.logIn = this.logIn.bind(this)
+    this.newRoomOpen = this.newRoomOpen.bind(this)
+    this.setNewRoomname = this.setNewRoomname.bind(this)
+    this.createNewRoom = this.createNewRoom.bind(this)
   }
 
    makeid() {
@@ -35,11 +41,45 @@ class Chatroom extends Component{
   
     return text;
   }
-  
+
+  newRoomOpen(event){
+    event.preventDefault();
+    this.setState({roomModal:true})
+  }
+
+  setNewRoomname(event){
+    event.preventDefault()
+    this.setState({newRoomName:event.target.value})
+  }
+
+  createNewRoom(){
+    fetch("/api/v1/rooms/",{
+      method:"POST",
+      body: JSON.stringify({
+        text:this.state.newRoomName,
+        value:"r"+this.makeid(),
+      }), 
+      headers:{
+        'Content-Type': 'application/json'
+      }
+    }).then((res) => {
+      return res.json();
+    }).then((res)=>{
+      let rs = this.state.roomOptions
+      rs.push(res)
+      this.setState({currentRoom:this.state.newRoomName,roomModal:false})
+      
+    }).catch(error => console.error('Error:', error))
+  }
+
+  setCurrentRoom(){
+
+  }
+
   setUsername(event){
     event.preventDefault()
     this.setState({username:event.target.value})
-}
+  }
   initSocket () {
     var hostname=(window.location.hostname)
     this.ws = new WebSocket("ws://"+hostname+":18000/ws");
@@ -70,6 +110,16 @@ class Chatroom extends Component{
       this.setState({messageList:res})
       this.messageList = res
     //  console.log(this.messageList)
+    }).catch((err) => {
+      this.setState({err});
+    });
+    fetch("/api/v1/rooms/").then((res) => {
+      return res.json();
+    }).then((res) => {
+       // console.log(this.state.messages)
+      this.setState({roomOptions:res})
+      //this.roomOptions = res
+      console.log(this.state.roomOptions)
     }).catch((err) => {
       this.setState({err});
     });
@@ -107,7 +157,7 @@ class Chatroom extends Component{
     this.setState({ modalOpen: true})
   }
   close(event){
-    this.setState({ modalOpen: false })
+    this.setState({ modalOpen: false,roomModal:false })
   }
   render(){
     return (
@@ -121,13 +171,13 @@ class Chatroom extends Component{
               Chat Room
             </Menu.Item>
             <Menu.Item name='side layout' active >
-              <Button icon labelPosition='left' color="teal" onClick={this.loginFormOpen}>
-                <Icon name='user circle' />
+              <Button icon labelPosition='left' color="teal" onClick={this.newRoomOpen}>
+                <Icon name='home' />
                 New Room
               </Button>
             </Menu.Item>
             <Menu.Item name='side layout' active >
-              <Dropdown placeholder='Room' search selection options={this.roomOptions} />
+              <Dropdown placeholder='Room'  value={this.state.cr} search selection options={this.state.roomOptions} />
             </Menu.Item>
             <Menu.Item name='login' position="right" active >
               <Button icon labelPosition='left' color="teal" onClick={this.loginFormOpen}>
@@ -149,16 +199,30 @@ class Chatroom extends Component{
      
       <Modal size="mini" open={this.state.modalOpen} onClose={this.close}>
           <Modal.Header>
-            Delete Your Account
+            New User
           </Modal.Header>
           <Modal.Content>
           <Input fluid name="username" placeholder='username'  value={this.state.username}  onChange={this.setUsername}/>
           </Modal.Content>
           <Modal.Actions>
-            <Button negative>
+            <Button negative onClick={this.close}>
               No
             </Button>
             <Button positive icon='checkmark' labelPosition='right' content='Yes' onClick={this.logIn}/>
+          </Modal.Actions>
+        </Modal>
+        <Modal size="mini" open={this.state.roomModal} onClose={this.close}>
+          <Modal.Header>
+            Add new room
+          </Modal.Header>
+          <Modal.Content>
+          <Input fluid name="roomname" placeholder='room name'  value={this.state.newRoomName}  onChange={this.setNewRoomname}/>
+          </Modal.Content>
+          <Modal.Actions>
+            <Button negative onClick={this.close}>
+              No
+            </Button>
+            <Button positive icon='checkmark' labelPosition='right' content='Yes' onClick={this.createNewRoom}/>
           </Modal.Actions>
         </Modal>
     </Container>
