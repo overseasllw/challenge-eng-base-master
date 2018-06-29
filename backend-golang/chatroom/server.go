@@ -61,8 +61,6 @@ func (server *ChatServer) Join(msg model.Message, conn *websocket.Conn) *Client 
 		}
 		return client
 	}
-	uid := chat.CreateNewUser(*msg.Username)
-	msg.UserID = uid
 
 	if msg.Register != nil && *msg.Register == true {
 		gue := server.OnlineUsers[*msg.Guestname]
@@ -187,6 +185,8 @@ func Listen(server *ChatServer, c echo.Context) error {
 	if msg.Room != nil {
 		server.RoomUserList[*msg.Room] = append(server.RoomUserList[*msg.Room], *user)
 	}
+	uid := chat.CreateNewUser(*msg.Username)
+	msg.UserID = uid
 	//log.Print(server.RoomUserList)
 	for {
 		msg := model.Message{}
