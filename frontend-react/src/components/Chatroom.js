@@ -4,7 +4,7 @@ import UserList from './UserList';
 import ChatMessageBox from './ChatMessageBox'
 
 class Chatroom extends Component{
-  
+
   constructor(props){
     super(props)
     //var guest = "guest_"+this.makeid()
@@ -36,10 +36,10 @@ class Chatroom extends Component{
    makeid() {
     var text = "";
     var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  
+
     for (var i = 0; i < 6; i++)
       text += possible.charAt(Math.floor(Math.random() * possible.length));
-  
+
     return text;
   }
 
@@ -59,7 +59,7 @@ class Chatroom extends Component{
       body: JSON.stringify({
         text:this.state.newRoomName,
         value:"r"+this.makeid(),
-      }), 
+      }),
       headers:{
         'Content-Type': 'application/json'
       }
@@ -69,14 +69,14 @@ class Chatroom extends Component{
       let rs = this.state.roomOptions
       rs.push(res)
       this.setState({currentRoom:res.value,roomModal:false})
-      
+
     }).catch(error => console.error('Error:', error))
   }
 
-  setCurrentRoom(event,value){
+  setCurrentRoom(event,data){
     event.preventDefault()
-    this.setState({currentRoom:value})
-    console.log(this.state.currentRoom)
+    console.log(event.target);
+    this.setState({currentRoom:data})
   }
 
   setUsername(event){
@@ -94,7 +94,7 @@ class Chatroom extends Component{
        console.log(this.state.userList)
      }else{
         if (prd_msg[0].message!==""){
-            this.setState({ messageList: [...this.state.messageList, prd_msg[0]] }) 
+            this.setState({ messageList: [...this.state.messageList, prd_msg[0]] })
             console.log(prd_msg[0])
         }
       }
@@ -182,7 +182,7 @@ class Chatroom extends Component{
               </Button>
             </Menu.Item>
             <Menu.Item name='side layout' active >
-              <Dropdown placeholder='Room'  value={this.state.currentRoom} search selection options={this.state.roomOptions} onChange={(val)=>this.setCurrentRoom(option.value)}/>
+              <Dropdown placeholder='Room' name="roomlist"  value={this.state.currentRoom} selection options={this.state.roomOptions} onChange={(event,{currentRoom})=>this.setCurrentRoom(event,currentRoom)}/>
             </Menu.Item>
             <Menu.Item name='login' position="right" active >
               <Button icon labelPosition='left' color="teal" onClick={this.loginFormOpen}>
@@ -201,7 +201,7 @@ class Chatroom extends Component{
         </Grid.Column>
       </Grid>
       <Segment basic></Segment>
-     
+
       <Modal size="mini" open={this.state.modalOpen} onClose={this.close}>
           <Modal.Header>
             New User
