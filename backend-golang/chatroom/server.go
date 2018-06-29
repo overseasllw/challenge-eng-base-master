@@ -72,7 +72,7 @@ func (server *ChatServer) Join(msg model.Message, conn *websocket.Conn) *Client 
 		server.OnlineUsers[*msg.Username] = gue
 		//u.Username = msg.Username
 		//delete(server.OnlineUsers, *msg.Guestname)
-		server.RoomUserList[*msg.Room] = append(server.RoomUserList[*msg.Room], gue)
+		//	server.RoomUserList[*msg.Room] = append(server.RoomUserList[*msg.Room], gue)
 		server.AddMessage(model.Message{
 			UUID:           uuid.NewV4().String(),
 			MessageType:    "system-message",
@@ -102,7 +102,7 @@ func (server *ChatServer) Join(msg model.Message, conn *websocket.Conn) *Client 
 
 	server.OnlineUsers[*msg.Username] = *client
 	server.updateOnlineUserList(client)
-	server.RoomUserList[*msg.Room] = append(server.RoomUserList[*msg.Room], *client)
+	///server.RoomUserList[*msg.Room] = append(server.RoomUserList[*msg.Room], *client)
 	server.AddMessage(model.Message{
 		UUID:           uuid.NewV4().String(),
 		MessageType:    "system-message",
@@ -260,7 +260,11 @@ InfiLoop:
 	if len(messages) > 0 {
 		for _, rname := range server.RoomUserList[*messages[0].Room] {
 			//	for _, client := range server.OnlineUsers {
-			rname.Send(messages)
+			n := rname.User.Username
+			log.Print(*n)
+			if _, ok := server.OnlineUsers[*n]; ok {
+				rname.Send(messages)
+			}
 			//	}
 		}
 	}

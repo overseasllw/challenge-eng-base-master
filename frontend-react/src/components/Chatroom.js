@@ -112,8 +112,8 @@ class Chatroom extends Component{
     }).then((res) => {
        // console.log(this.state.messages)
       this.setState({messageList:res})
-      this.messageList = res
-    //  console.log(this.messageList)
+     // this.messageList = res
+     console.log(this.state.messageList)
     }).catch((err) => {
       this.setState({err});
     });
@@ -123,7 +123,7 @@ class Chatroom extends Component{
        // console.log(this.state.messages)
       this.setState({roomOptions:res})
       //this.roomOptions = res
-      console.log(this.state.roomOptions)
+    //s  console.log(this.state.roomOptions)
     }).catch((err) => {
       this.setState({err});
     });
@@ -132,7 +132,7 @@ class Chatroom extends Component{
   generateTimestamp () {
    // console.log(moment().format("MMMM DD YYYY, h:mm:ss a"))
     //var iso = new Date().toTimeString() //.toISOString();
-    return moment().format("MMMM DD YYYY, h:mm:ss a");
+    return moment().format("MM-DD-YYYY h:mm:ss");
   }
 
   sendMessage (message) {
