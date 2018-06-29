@@ -30,6 +30,7 @@ class Chatroom extends Component{
     this.newRoomOpen = this.newRoomOpen.bind(this)
     this.setNewRoomname = this.setNewRoomname.bind(this)
     this.createNewRoom = this.createNewRoom.bind(this)
+    this.setCurrentRoom = this.setCurrentRoom.bind(this)
   }
 
    makeid() {
@@ -67,13 +68,15 @@ class Chatroom extends Component{
     }).then((res)=>{
       let rs = this.state.roomOptions
       rs.push(res)
-      this.setState({currentRoom:this.state.newRoomName,roomModal:false})
+      this.setState({currentRoom:res.value,roomModal:false})
       
     }).catch(error => console.error('Error:', error))
   }
 
-  setCurrentRoom(){
-
+  setCurrentRoom(event,value){
+    event.preventDefault()
+    this.setState({currentRoom:value})
+    console.log(this.state.currentRoom)
   }
 
   setUsername(event){
@@ -136,7 +139,8 @@ class Chatroom extends Component{
           username: this.state.username===""?this.state.guestname:this.state.username,
           register:false,
           guestname:this.state.guestname,
-          message: (message+" ("+this.generateTimestamp()+")")
+          message: (message+" ("+this.generateTimestamp()+")"),
+          room:this.state.currentRoom,
         })
       );
   }
@@ -146,7 +150,8 @@ class Chatroom extends Component{
         username:this.state.username,
         guestname:this.state.guestname,
         register:true,
-        message:""
+        message:"",
+        room:this.state.currentRoom,
       })
     )
     this.setState({modalOpen:false})
@@ -177,7 +182,7 @@ class Chatroom extends Component{
               </Button>
             </Menu.Item>
             <Menu.Item name='side layout' active >
-              <Dropdown placeholder='Room'  value={this.state.cr} search selection options={this.state.roomOptions} />
+              <Dropdown placeholder='Room'  value={this.state.currentRoom} search selection options={this.state.roomOptions} onChange={(val)=>this.setCurrentRoom(option.value)}/>
             </Menu.Item>
             <Menu.Item name='login' position="right" active >
               <Button icon labelPosition='left' color="teal" onClick={this.loginFormOpen}>
