@@ -11,6 +11,7 @@ type (
 		MessageType    string    `json:"message_type"`
 		CreatedAt      time.Time `json:"created_at,omitempty"`
 		MessageContent *string   `json:"message"`
+		Room           *string   `json:"room"`
 		User
 	}
 )

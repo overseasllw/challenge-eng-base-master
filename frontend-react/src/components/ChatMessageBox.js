@@ -18,7 +18,7 @@ class ChatMessageBox extends Component{
                                     <Label color='blue' pointing='left'>{m.message}</Label>
                                 </div>
                         }
-                            return <div className="message" key={m.message_id}>
+                            return <div className="message" key={m.uuid}>
                                     <Label color='orange'>{m.message}</Label>
                                 </div>
                         

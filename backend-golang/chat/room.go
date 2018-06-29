@@ -4,8 +4,6 @@ import (
 	"app/common"
 	model "app/models"
 	"database/sql"
-	"encoding/json"
-	"log"
 	"net/http"
 
 	"github.com/labstack/echo"
@@ -23,8 +21,8 @@ func GetRoomListHandler(c echo.Context) (err error) {
 		rows.Scan(&r.Id, &r.UUID, &r.Name)
 		rs = append(rs, r)
 	}
-	j, _ := json.Marshal(rs)
-	log.Print(string(j))
+	//	j, _ := json.Marshal(rs)
+	//	log.Print(string(j))
 	return c.JSON(http.StatusCreated, rs)
 }
 

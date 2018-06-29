@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Grid, Container,Menu,Button, Icon, Segment, Modal,Input,Dropdown} from 'semantic-ui-react'
 import UserList from './UserList';
 import ChatMessageBox from './ChatMessageBox'
+import * as moment from 'moment';
 
 class Chatroom extends Component{
 
@@ -129,8 +130,9 @@ class Chatroom extends Component{
   }
 
   generateTimestamp () {
-    var iso = new Date().toTimeString() //.toISOString();
-    return iso;//iso.split("T")[1].split(".")[0];
+   // console.log(moment().format("MMMM DD YYYY, h:mm:ss a"))
+    //var iso = new Date().toTimeString() //.toISOString();
+    return moment().format("MMMM DD YYYY, h:mm:ss a");
   }
 
   sendMessage (message) {

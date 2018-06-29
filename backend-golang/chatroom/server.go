@@ -19,7 +19,7 @@ type ChatServer struct {
 	NewMessage   chan *model.Message
 	OfflineUsers map[string]Client
 	NewUser      chan *Client
-	RoomId       string
+	RoomUserList map[string][]Client
 }
 
 var (
@@ -37,6 +37,7 @@ func NewServer() (server *ChatServer) {
 		OnlineUsers:  make(map[string]Client),
 		OfflineUsers: make(map[string]Client),
 		NewUser:      make(chan *Client, 5),
+		RoomUserList: make(map[string][]Client),
 	}
 }
 
@@ -71,12 +72,14 @@ func (server *ChatServer) Join(msg model.Message, conn *websocket.Conn) *Client 
 		server.OnlineUsers[*msg.Username] = gue
 		//u.Username = msg.Username
 		//delete(server.OnlineUsers, *msg.Guestname)
+		server.RoomUserList[*msg.Room] = append(server.RoomUserList[*msg.Room], gue)
 		server.AddMessage(model.Message{
 			UUID:           uuid.NewV4().String(),
 			MessageType:    "system-message",
 			CreatedAt:      time.Now(),
 			MessageContent: getPointer(*msg.Username + " has joined the chat."),
 			User:           model.User{UserID: 0, Username: getPointer("system")},
+			Room:           msg.Room,
 		})
 	}
 
@@ -99,12 +102,14 @@ func (server *ChatServer) Join(msg model.Message, conn *websocket.Conn) *Client 
 
 	server.OnlineUsers[*msg.Username] = *client
 	server.updateOnlineUserList(client)
+	server.RoomUserList[*msg.Room] = append(server.RoomUserList[*msg.Room], *client)
 	server.AddMessage(model.Message{
 		UUID:           uuid.NewV4().String(),
 		MessageType:    "system-message",
 		CreatedAt:      time.Now(),
 		MessageContent: getPointer(*msg.Username + " has joined the chat."),
 		User:           model.User{UserID: 0, Username: getPointer("system")},
+		Room:           msg.Room,
 	})
 
 	client.Send([]*model.Message{
@@ -179,7 +184,10 @@ func Listen(server *ChatServer, c echo.Context) error {
 		//	log.Print(err)
 		return err
 	}
-
+	if msg.Room != nil {
+		server.RoomUserList[*msg.Room] = append(server.RoomUserList[*msg.Room], *user)
+	}
+	//log.Print(server.RoomUserList)
 	for {
 		msg := model.Message{}
 		err = ws.ReadJSON(&msg)
@@ -250,8 +258,10 @@ InfiLoop:
 	}
 
 	if len(messages) > 0 {
-		for _, client := range server.OnlineUsers {
-			client.Send(messages)
+		for _, rname := range server.RoomUserList[*messages[0].Room] {
+			//	for _, client := range server.OnlineUsers {
+			rname.Send(messages)
+			//	}
 		}
 	}
 }
