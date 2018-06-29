@@ -182,7 +182,7 @@ class Chatroom extends Component{
               </Button>
             </Menu.Item>
             <Menu.Item name='side layout' active >
-              <Dropdown placeholder='Room' name="roomlist"  value={this.state.currentRoom} selection options={this.state.roomOptions} onChange={(event,{currentRoom})=>this.setCurrentRoom(event,currentRoom)}/>
+              <Dropdown placeholder='Room' name="roomlist"  value={this.state.currentRoom} selection options={this.state.roomOptions} onChange={(event,{value})=>this.setState({currentRoom:value})}/>
             </Menu.Item>
             <Menu.Item name='login' position="right" active >
               <Button icon labelPosition='left' color="teal" onClick={this.loginFormOpen}>
