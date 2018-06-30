@@ -55,7 +55,7 @@ func (server *ChatServer) Join(msg model.Message, conn *websocket.Conn) *Client 
 	if msg.Username == nil {
 		temp := "guest" + time.Now().String()
 		client := &Client{
-			User:   model.User{Username: &temp},
+			User:   model.User{Username: &temp, UserID: msg.UserID},
 			Socket: conn,
 			Server: server,
 		}
@@ -76,7 +76,7 @@ func (server *ChatServer) Join(msg model.Message, conn *websocket.Conn) *Client 
 			MessageType:    "system-message",
 			CreatedAt:      time.Now(),
 			MessageContent: getPointer(*msg.Username + " has joined the chat."),
-			User:           model.User{UserID: 0, Username: getPointer("system")},
+			User:           model.User{UserID: msg.UserID, Username: getPointer("system")},
 			Room:           msg.Room,
 		})
 	}
@@ -106,7 +106,7 @@ func (server *ChatServer) Join(msg model.Message, conn *websocket.Conn) *Client 
 		MessageType:    "system-message",
 		CreatedAt:      time.Now(),
 		MessageContent: getPointer(*msg.Username + " has joined the chat."),
-		User:           model.User{UserID: 0, Username: getPointer("system")},
+		User:           model.User{UserID: msg.UserID, Username: getPointer("system")},
 		Room:           msg.Room,
 	})
 
@@ -167,6 +167,7 @@ func Listen(server *ChatServer, c echo.Context) error {
 	//j, _ := json.Marshal(msg)
 	//log.Print(string(j))
 	if err != nil {
+
 		if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 			log.Printf("error: %v", err)
 		} else {
@@ -175,27 +176,32 @@ func Listen(server *ChatServer, c echo.Context) error {
 		ws.Close()
 		return err
 	}
-
+	uid := chat.CreateNewUser(*msg.Username)
+	msg.UserID = uid
 	user := server.Join(msg, ws)
 
 	if user == nil {
 		//	log.Print(err)
+		user.Exit()
 		return err
 	}
 	if msg.Room != nil {
 		server.RoomUserList[*msg.Room] = append(server.RoomUserList[*msg.Room], *user)
 	}
-	uid := chat.CreateNewUser(*msg.Username)
-	msg.UserID = uid
-	//log.Print(server.RoomUserList)
+
+	log.Print(msg.UserID)
 	for {
 		msg := model.Message{}
 		err = ws.ReadJSON(&msg)
 		msg.UUID = uuid.NewV4().String()
 
+		if _, ok := server.RoomUserList[*msg.Room]; !ok {
+			server.RoomUserList[*msg.Room] = append(server.RoomUserList[*msg.Room], *user)
+		}
 		if err != nil {
-			user.Exit()
+
 			server.updateOnlineUserList(user)
+			user.Exit()
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Printf("error: %v", err)
 			} else {
@@ -223,7 +229,6 @@ func Listen(server *ChatServer, c echo.Context) error {
 
 func (server *ChatServer) updateOnlineUserList(client *Client) {
 	server.NewUser <- client
-
 }
 
 // Broadcasting all the messages in the queue in one block
@@ -261,7 +266,6 @@ InfiLoop:
 		for _, rname := range server.RoomUserList[*messages[0].Room] {
 			//	for _, client := range server.OnlineUsers {
 			n := rname.User.Username
-			log.Print(*n)
 			if _, ok := server.OnlineUsers[*n]; ok {
 				rname.Send(messages)
 			}

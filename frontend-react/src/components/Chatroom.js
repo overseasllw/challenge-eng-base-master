@@ -136,6 +136,10 @@ class Chatroom extends Component{
   }
 
   sendMessage (message) {
+    if (this.state.currentRoom ===""){
+      alert("Please select a chat room!")
+      return
+    }
       this.ws.send(
         JSON.stringify({
           username: this.state.username===""?this.state.guestname:this.state.username,
