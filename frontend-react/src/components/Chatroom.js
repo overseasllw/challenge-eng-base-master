@@ -16,6 +16,7 @@ class Chatroom extends Component{
       username:"",
       userList:[],
       currentRoom:"",
+      currentRoomId:"",
       newRoomName:"",
       roomOptions:[],
       modalOpen:false,
@@ -69,14 +70,13 @@ class Chatroom extends Component{
     }).then((res)=>{
       let rs = this.state.roomOptions
       rs.push(res)
-      this.setState({currentRoom:res.value,roomModal:false})
+      this.setState({currentRoom:res.value,roomModal:false,currentRoomId:res.key})
 
     }).catch(error => console.error('Error:', error))
   }
 
   setCurrentRoom(event,data){
     event.preventDefault()
-    console.log(event.target);
     this.setState({currentRoom:data})
   }
 

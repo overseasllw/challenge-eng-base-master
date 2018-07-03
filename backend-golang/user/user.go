@@ -3,13 +3,7 @@ package chat
 import (
 	"app/common"
 	"database/sql"
-	//"net/http"
-
-//	model "app/models"
-
-//	"github.com/labstack/echo"
 )
-
 
 func CheckUserExist(username string) (userId *int64) {
 

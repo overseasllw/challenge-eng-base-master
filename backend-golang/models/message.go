@@ -12,6 +12,7 @@ type (
 		CreatedAt      time.Time `json:"created_at,omitempty"`
 		MessageContent *string   `json:"message"`
 		Room           *string   `json:"room"`
+		RoomId         int64     `room_id`
 		User
 	}
 )

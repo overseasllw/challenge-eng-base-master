@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS message
   message_to_user_id int(10),
   message_type VARCHAR(30),
   message_content varchar(100),
+  room_id int(10),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY(message_id)
 );

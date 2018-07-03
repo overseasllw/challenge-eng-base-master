@@ -1,8 +1,9 @@
 package main
 
 import (
-	"app/chat"
 	"app/chatroom"
+	m "app/message"
+	rm "app/room"
 
 	"net/http"
 
@@ -38,8 +39,8 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	e.GET("/", chat.GetMessageListHandler)
-	e.GET("/test", chat.GetMessageListHandler)
+	e.GET("/", m.GetMessageListHandler)
+	e.GET("/test", m.GetMessageListHandler)
 	// message api
 	//e.POST("/api/v1/messages/", chat.PostMessageHandler)
 
@@ -51,12 +52,12 @@ func main() {
 	})
 	e.GET("/api/v1/messages/", func(c echo.Context) error {
 		//	server.GetUserList()
-		err := chat.GetMessageListHandler(c)
+		err := m.GetMessageListHandler(c)
 		return err
 	})
 
-	e.POST("/api/v1/rooms/", chat.CreateNewRoomHandler)
-	e.GET("/api/v1/rooms/", chat.GetRoomListHandler)
+	e.POST("/api/v1/rooms/", rm.CreateNewRoomHandler)
+	e.GET("/api/v1/rooms/", rm.GetRoomListHandler)
 	e.Logger.Fatal(e.Start(":8000"))
 
 	/*	if err := http.ListenAndServe(":8000", nil); err != nil {

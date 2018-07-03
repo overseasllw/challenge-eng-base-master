@@ -12,6 +12,7 @@ type Client struct {
 	model.User
 	Socket *websocket.Conn
 	Server *ChatServer
+	Room   *string
 }
 
 var (
@@ -68,5 +69,5 @@ func (client *Client) NewMessage(message model.Message) {
 
 // Exiting out
 func (client *Client) Exit() {
-	client.Server.Leave(*client.Username)
+	client.Server.Leave(*client.Username, *client.Room)
 }
