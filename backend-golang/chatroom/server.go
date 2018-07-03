@@ -189,14 +189,15 @@ func Listen(server *ChatServer, c echo.Context) error {
 		server.RoomUserList[*msg.Room] = append(server.RoomUserList[*msg.Room], *user)
 	}
 
-	log.Print(msg.UserID)
+	//log.Print(msg.UserID)
 	for {
 		msg := model.Message{}
 		err = ws.ReadJSON(&msg)
 		msg.UUID = uuid.NewV4().String()
-
-		if _, ok := server.RoomUserList[*msg.Room]; !ok {
-			server.RoomUserList[*msg.Room] = append(server.RoomUserList[*msg.Room], *user)
+		if msg.Room != nil {
+			if _, ok := server.RoomUserList[*msg.Room]; !ok {
+				server.RoomUserList[*msg.Room] = append(server.RoomUserList[*msg.Room], *user)
+			}
 		}
 		if err != nil {
 
