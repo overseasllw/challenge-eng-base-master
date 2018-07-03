@@ -147,6 +147,7 @@ class Chatroom extends Component{
           guestname:this.state.guestname,
           message: (message+" ("+this.generateTimestamp()+")"),
           room:this.state.currentRoom,
+          room_id:this.state.currentRoomId,
         })
       );
   }
@@ -158,6 +159,7 @@ class Chatroom extends Component{
         register:true,
         message:"",
         room:this.state.currentRoom,
+        room_id:this.state.currentRoomId,
       })
     )
     this.setState({modalOpen:false})

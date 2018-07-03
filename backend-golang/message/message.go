@@ -4,6 +4,7 @@ import (
 	"app/common"
 	model "app/models"
 	"database/sql"
+	"log"
 
 	"github.com/labstack/echo"
 )
@@ -55,6 +56,7 @@ func CreateNewMessage(message *model.Message) (err error) {
 	}
 	_, err = ins.Exec(message.UUID, message.UserID, message.MessageType, message.RoomId, message.MessageContent)
 	if err != nil {
+		log.Print(err)
 		return err
 	}
 	return
