@@ -49,6 +49,7 @@ func GetAllMessageList() (messages []*model.Message, err error) {
 }
 
 func CreateNewMessage(message *model.Message) (err error) {
+	log.Print(message)
 	ins, err := common.DB.Prepare(`insert into message(message_uuid,user_id,message_type,room_id,message_content,created_at)
 		values(?,?,?,?,?CURRENT_TIMESTAMP())`)
 	if err != nil {

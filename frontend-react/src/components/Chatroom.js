@@ -68,10 +68,11 @@ class Chatroom extends Component{
     }).then((res) => {
       return res.json();
     }).then((res)=>{
+      console.log(res)
       let rs = this.state.roomOptions
       rs.push(res)
       this.setState({currentRoom:res.value,roomModal:false,currentRoomId:res.key})
-
+      console.log(this.state.currentRoomId)
     }).catch(error => console.error('Error:', error))
   }
 
@@ -132,10 +133,11 @@ class Chatroom extends Component{
   generateTimestamp () {
    // console.log(moment().format("MMMM DD YYYY, h:mm:ss a"))
     //var iso = new Date().toTimeString() //.toISOString();
-    return moment().format("MM-DD-YYYY h:mm:ss");
+    return moment().format("YYYY-MM-DD h:mm:ss");
   }
 
   sendMessage (message) {
+    console.log(this.state.currentRoomId)
     if (this.state.currentRoom ===""){
       alert("Please select a chat room!")
       return
@@ -190,7 +192,7 @@ class Chatroom extends Component{
               </Button>
             </Menu.Item>
             <Menu.Item name='side layout' active >
-              <Dropdown placeholder='Room' name="roomlist"  value={this.state.currentRoom} selection options={this.state.roomOptions} onChange={(event,{value})=>this.setState({currentRoom:value})}/>
+              <Dropdown placeholder='Room' name="roomlist"  value={this.state.currentRoom} selection options={this.state.roomOptions} onChange={(event,{key,value})=>this.setState({currentRoom:value,currentRoomId:key})}/>
             </Menu.Item>
             <Menu.Item name='login' position="right" active >
               <Button icon labelPosition='left' color="teal" onClick={this.loginFormOpen}>

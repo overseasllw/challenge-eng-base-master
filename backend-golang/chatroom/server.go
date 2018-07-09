@@ -81,6 +81,7 @@ func (server *ChatServer) Join(msg model.Message, conn *websocket.Conn) *Client 
 			MessageContent: getPointer(*msg.Username + " has joined the chat."),
 			User:           model.User{UserID: msg.UserID, Username: getPointer("system")},
 			Room:           msg.Room,
+			RoomId:         msg.RoomId,
 		})
 	}
 
@@ -111,6 +112,7 @@ func (server *ChatServer) Join(msg model.Message, conn *websocket.Conn) *Client 
 		MessageContent: getPointer(*msg.Username + " has joined the chat."),
 		User:           model.User{UserID: msg.UserID, Username: getPointer("system")},
 		Room:           msg.Room,
+		RoomId:         msg.RoomId,
 	})
 
 	client.Send([]*model.Message{
@@ -133,6 +135,7 @@ func (server *ChatServer) Leave(name string, room string) {
 			MessageContent: getPointer(name + " has left the chat."),
 			User:           model.User{UserID: 0, Username: getPointer("system")},
 			Room:           &room,
+			//	RoomId:         msg.RoomId,
 		})
 }
 
