@@ -12,9 +12,12 @@ import (
 
 func GetMessageListHandler(c echo.Context) (err error) {
 	idString := c.QueryParam("LastMessageId")
-	if strings.TrimSpace(idString) != "" {
+	if strings.TrimSpace(idString) != "" && strings.TrimSpace(idString) != "undefined" {
 		idString = " and message_id>" + idString + " "
+	} else {
+		idString = ""
 	}
+	log.Print(idString)
 	rows, err := common.DB.Query(`select m.message_uuid, m.message_id,m.user_id,m.message_content,m.created_at,
 		u.username,message_type,room_id from message m
 		join user_ u on u.user_id =  m.user_id and message_type !='system-message'

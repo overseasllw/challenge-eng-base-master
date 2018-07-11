@@ -44,6 +44,14 @@ class ChatInputBox extends Component{
        //   console.log(this.state.messages)
        //   console.log(this.state.message)
           this.props.onClick(this.state.message)
+          this.ws.send(
+            JSON.stringify({
+              username:"liwei",
+              guestname:"liwei",
+              message:"typing",
+              message_type:"typing_indicatior"
+            })
+          )
           this.setState({ message: '' });
         }
       }

@@ -190,7 +190,6 @@ func Listen(server *ChatServer, c echo.Context) error {
 	user := server.Join(msg, ws)
 	user.Room = msg.Room
 	if user == nil {
-		//	log.Print(err)
 		user.Exit()
 		return err
 	}
@@ -204,6 +203,12 @@ func Listen(server *ChatServer, c echo.Context) error {
 		err = ws.ReadJSON(&msg)
 		msg.UUID = uuid.NewV4().String()
 		msg.UserID = user.UserID
+
+		if msg.MessageType == "typing_indicator" {
+			user.NewMessage(msg)
+			return err
+		}
+
 		if msg.Room != nil {
 			if _, ok := server.RoomUserList[*msg.Room]; !ok {
 				server.RoomUserList[*msg.Room] = append(server.RoomUserList[*msg.Room], *user)

@@ -93,6 +93,8 @@ class Chatroom extends Component{
      if (prd_msg[0].message_type==='user_list'){
        this.setState({userList:prd_msg[0].list})
        console.log(this.state.userList)
+     }else if (prd_msg[0].message_type==='user_list'){
+       console.log(prd_msg[0])
      }else{
         if (prd_msg[0].message!==""){
             this.setState({ messageList: [...this.state.messageList, prd_msg[0]] })
@@ -209,7 +211,7 @@ class Chatroom extends Component{
           <UserList userList={this.state.userList}/>
         </Grid.Column>
         <Grid.Column width={13} stretched className="contentHeight">
-          <ChatMessageBox onClick={this.sendMessage} messageList={this.state.messageList}/>
+          <ChatMessageBox onClick={this.sendMessage} messageList={this.state.messageList} ws={this.ws}/>
         </Grid.Column>
       </Grid>
       <Segment basic></Segment>
