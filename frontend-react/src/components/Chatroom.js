@@ -69,11 +69,9 @@ class Chatroom extends Component{
     }).then((res) => {
       return res.json();
     }).then((res)=>{
-      console.log(res)
       let rs = this.state.roomOptions
       rs.push(res)
       this.setState({currentRoom:res.value,roomModal:false,currentRoomId:res.key})
-      console.log(this.state.currentRoomId)
     }).catch(error => console.error('Error:', error))
   }
 
@@ -126,10 +124,9 @@ class Chatroom extends Component{
     fetch("/api/v1/rooms/").then((res) => {
       return res.json();
     }).then((res) => {
-       // console.log(this.state.messages)
-      this.setState({roomOptions:res})
-      //this.roomOptions = res
-    //s  console.log(this.state.roomOptions)
+    //  this.setState({ messageList: [...this.state.messageList, prd_msg[0]] })
+      this.setState({roomOptions:[...this.state.roomOptions,res]})
+    
     }).catch((err) => {
       this.setState({err});
     });
