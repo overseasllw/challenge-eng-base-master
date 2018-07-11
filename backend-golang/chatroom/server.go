@@ -155,6 +155,7 @@ func (server *ChatServer) AddMessage(message model.Message) {
 			}
 		}
 		m.CreateNewMessage(&message)
+		m.ReadMessage(&message)
 	}
 }
 
@@ -278,6 +279,7 @@ InfiLoop:
 			//	for _, client := range server.OnlineUsers {
 			n := rname.User.Username
 			if _, ok := server.OnlineUsers[*n]; ok {
+
 				rname.Send(messages)
 			}
 			//	}

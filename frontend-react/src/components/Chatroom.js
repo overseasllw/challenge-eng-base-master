@@ -3,6 +3,7 @@ import { Grid, Container,Menu,Button, Icon, Segment, Modal,Input,Dropdown} from 
 import UserList from './UserList';
 import ChatMessageBox from './ChatMessageBox'
 import * as moment from 'moment';
+import cookies from 'js-cookie';
 
 class Chatroom extends Component{
 
@@ -97,6 +98,7 @@ class Chatroom extends Component{
      }else{
         if (prd_msg[0].message!==""){
             this.setState({ messageList: [...this.state.messageList, prd_msg[0]] })
+            cookies.set('LastMessageId', prd_msg[0].message_id, { path: '/' });
             console.log(prd_msg[0])
         }
       }
@@ -108,16 +110,19 @@ class Chatroom extends Component{
   }
   componentDidMount(){
     this.initSocket()
-    fetch("/api/v1/messages/").then((res) => {
+    fetch("/api/v1/messages/?LastMessageId="+cookies.get("LastMessageId")).then((res) => {
       return res.json();
     }).then((res) => {
-       // console.log(this.state.messages)
+      if (res.length>0){
+        cookies.set('LastMessageId', res[res.length-1].message_id, { path: '/' });
+      }
       this.setState({messageList:res})
-     // this.messageList = res
-     console.log(this.state.messageList)
     }).catch((err) => {
       this.setState({err});
     });
+
+  //  Cookies.set('test-cookies', "hello test cookies", { path: '/' });
+
     fetch("/api/v1/rooms/").then((res) => {
       return res.json();
     }).then((res) => {

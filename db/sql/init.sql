@@ -42,6 +42,15 @@ CREATE TABLE IF NOT EXISTS room
   PRIMARY KEY(room_id)
 );
 
+CREATE TABLE IF NOT EXISTS message_read
+(
+  read_id int(10) NOT NULL AUTO_INCREMENT,
+  message_id INT (10) ,
+  message_uuid VARCHAR (50) ,
+  user_id INT (10),
+  PRIMARY KEY(read_id)
+);
+
 CREATE TABLE IF NOT EXISTS room_user
 (
   room_user_id INT (10) NOT NULL AUTO_INCREMENT,

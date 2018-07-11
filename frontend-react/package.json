@@ -3,12 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "js-cookie": "^2.2.0",
+    "moment": "^2.22.2",
     "prop-types": "^15.6.1",
     "react": "^15.5.4",
+    "react-cookie": "^2.2.0",
     "react-dom": "^15.5.4",
     "semantic-ui-css": "^2.3.1",
-    "semantic-ui-react": "^0.80.0",
-    "moment":"^2.22.2"
+    "semantic-ui-react": "^0.80.0"
   },
   "devDependencies": {
     "babel-preset-env": "^1.7.0",
