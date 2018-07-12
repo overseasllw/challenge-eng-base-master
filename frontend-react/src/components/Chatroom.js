@@ -22,6 +22,8 @@ class Chatroom extends Component{
       roomOptions:[],
       modalOpen:false,
       roomModal:false,
+      indicatorPosition:0,
+      counter:0,
     }
    // this.setState({messageList:[]})
     this.initSocket = this.initSocket.bind(this);
@@ -34,6 +36,7 @@ class Chatroom extends Component{
     this.setNewRoomname = this.setNewRoomname.bind(this)
     this.createNewRoom = this.createNewRoom.bind(this)
     this.setCurrentRoom = this.setCurrentRoom.bind(this)
+    this.isTyping = this.isTyping.bind(this)
   }
 
    makeid() {
@@ -93,13 +96,20 @@ class Chatroom extends Component{
      if (prd_msg[0].message_type==='user_list'){
        this.setState({userList:prd_msg[0].list})
        console.log(this.state.userList)
-     }else if (prd_msg[0].message_type==='user_list'){
-       console.log(prd_msg[0])
+     }else if (prd_msg[0].message_type==='typing_indicator'){
+      // console.log("hello")
+      this.setState({counter:this.state.counter+1})
+      if (this.state.counter===1){
+        this.setState({indicatorPosition:this.state.messageList.length})
+        this.setState({ messageList: [...this.state.messageList, prd_msg[0]] })
+        console.log(prd_msg)
+      }
+     
      }else{
         if (prd_msg[0].message!==""){
             this.setState({ messageList: [...this.state.messageList, prd_msg[0]] })
             cookies.set('LastMessageId', prd_msg[0].message_id, { path: '/' });
-            console.log(prd_msg[0])
+           // console.log(prd_msg[0])
         }
       }
     }
@@ -127,8 +137,10 @@ class Chatroom extends Component{
       return res.json();
     }).then((res) => {
     //  this.setState({ messageList: [...this.state.messageList, prd_msg[0]] })
-      this.setState({roomOptions:[...this.state.roomOptions,res]})
-    
+      this.setState({roomOptions:res})
+      if (res.length>0){
+        this.setState({ currentRoom : res[0].value,currentRoomId:res[0].key})
+      }
     }).catch((err) => {
       this.setState({err});
     });
@@ -138,6 +150,32 @@ class Chatroom extends Component{
    // console.log(moment().format("MMMM DD YYYY, h:mm:ss a"))
     //var iso = new Date().toTimeString() //.toISOString();
     return moment().format("YYYY-MM-DD h:mm:ss");
+  }
+
+  isTyping(){
+    console.log(this.state.currentRoomId)
+    if (this.state.currentRoom ===""){
+      alert("Please select a chat room!")
+      return
+    }
+      this.ws.send(
+        JSON.stringify({
+          username: this.state.username===""?this.state.guestname:this.state.username,
+          register:false,
+          guestname:this.state.guestname,
+          message: ("typing"),
+          room:this.state.currentRoom,
+          message_type:"typing_indicator",
+          room_id:this.state.currentRoomId,
+        })
+      );
+  }
+
+  removeIndicator(){
+    console.log("remove")
+    this.setState({messageList:this.state.messageList.filter(function(i) {
+      return i !== this.state.indicatorPosition
+    })})
   }
 
   sendMessage (message) {
@@ -211,7 +249,7 @@ class Chatroom extends Component{
           <UserList userList={this.state.userList}/>
         </Grid.Column>
         <Grid.Column width={13} stretched className="contentHeight">
-          <ChatMessageBox onClick={this.sendMessage} messageList={this.state.messageList} ws={this.ws}/>
+          <ChatMessageBox onClick={this.sendMessage} messageList={this.state.messageList} typingIndicator={this.isTyping} removeIndicator={this.removeIndicator}/>
         </Grid.Column>
       </Grid>
       <Segment basic></Segment>

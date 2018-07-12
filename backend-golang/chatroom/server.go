@@ -155,7 +155,7 @@ func (server *ChatServer) AddMessage(message model.Message) {
 			}
 		}
 		m.CreateNewMessage(&message)
-		m.ReadMessage(&message)
+		//m.ReadMessage(&message)
 	}
 }
 
@@ -204,11 +204,6 @@ func Listen(server *ChatServer, c echo.Context) error {
 		msg.UUID = uuid.NewV4().String()
 		msg.UserID = user.UserID
 
-		if msg.MessageType == "typing_indicator" {
-			user.NewMessage(msg)
-			return err
-		}
-
 		if msg.Room != nil {
 			if _, ok := server.RoomUserList[*msg.Room]; !ok {
 				server.RoomUserList[*msg.Room] = append(server.RoomUserList[*msg.Room], *user)
@@ -238,8 +233,21 @@ func Listen(server *ChatServer, c echo.Context) error {
 			}
 
 		}
-		// Write
-		user.NewMessage(msg)
+		if msg.MessageType == "typing_indicator" {
+			//	user.NewMessage(msg)
+			server.NewMessage <- &model.Message{
+				UUID:           "typing_indicator_" + *user.User.Username,
+				MessageType:    "typing_indicator",
+				CreatedAt:      time.Now(),
+				MessageContent: getPointer(*user.User.Username + " is typing."),
+				Room:           msg.Room,
+				User:           model.User{UserID: 0, Username: user.User.Username},
+			}
+			//	return err
+		} else {
+			// Write
+			user.NewMessage(msg)
+		}
 	}
 	//return err
 }

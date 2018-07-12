@@ -17,7 +17,7 @@ func GetMessageListHandler(c echo.Context) (err error) {
 	} else {
 		idString = ""
 	}
-	log.Print(idString)
+	//	log.Print(idString)
 	rows, err := common.DB.Query(`select m.message_uuid, m.message_id,m.user_id,m.message_content,m.created_at,
 		u.username,message_type,room_id from message m
 		join user_ u on u.user_id =  m.user_id and message_type !='system-message'

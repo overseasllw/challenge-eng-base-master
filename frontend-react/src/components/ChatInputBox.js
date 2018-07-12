@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Button,Icon, Grid, Input } from 'semantic-ui-react'
+const WAIT_INTERVAL = 1000;
 class ChatInputBox extends Component{
     constructor(props){
         super(props)
@@ -7,13 +8,14 @@ class ChatInputBox extends Component{
         this.messageOnKeyDown = this.messageOnKeyDown.bind(this);
         this.sendButtononClick = this.sendButtononClick.bind(this)
         this.messageOnChange = this.messageOnChange.bind(this)
+        this.typingOnKeyUp = this.typingOnKeyUp.bind(this)
     }
     render(){
         return (
             <div className="inputBox">
                 <Grid stackable>
                     <Grid.Column width={13}>
-                        <Input fluid name="mes" placeholder='message ...'  value={this.state.message} onKeyDown={this.messageOnKeyDown} onChange={this.messageOnChange}/>
+                        <Input fluid name="mes" placeholder='message ...'  value={this.state.message} onKeyDown={this.messageOnKeyDown} onKeyUp={this.typingOnKeyUp} onChange={this.messageOnChange}/>
                     </Grid.Column>
                     <Grid.Column width={3}>
                         <Button icon color="green"  fluid onClick={this.sendButtononClick}>
@@ -26,6 +28,10 @@ class ChatInputBox extends Component{
         )
     }
 
+    typingOnKeyUp(){
+
+    }
+
     sendButtononClick(event) {
         this.props.onClick(this.state.message)
         this.setState({
@@ -34,7 +40,9 @@ class ChatInputBox extends Component{
     }
 
     messageOnChange(event){
+        clearTimeout(this.timer);
         this.setState({message:event.target.value})
+        this.timer = setTimeout(this.props.removeIndicator, WAIT_INTERVAL);
     }
 
     messageOnKeyDown(event) {
@@ -44,18 +52,17 @@ class ChatInputBox extends Component{
        //   console.log(this.state.messages)
        //   console.log(this.state.message)
           this.props.onClick(this.state.message)
-          this.ws.send(
-            JSON.stringify({
-              username:"liwei",
-              guestname:"liwei",
-              message:"typing",
-              message_type:"typing_indicatior"
-            })
-          )
           this.setState({ message: '' });
+        }else{
+            this.props.typingIndicator()
         }
       }
     
+
+      componentWillMount() {
+        this.timer = null;
+    }
+
 }
 
 export default ChatInputBox;
