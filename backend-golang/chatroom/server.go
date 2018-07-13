@@ -244,6 +244,15 @@ func Listen(server *ChatServer, c echo.Context) error {
 				User:           model.User{UserID: 0, Username: user.User.Username},
 			}
 			//	return err
+		} else if msg.MessageType == "stop_typing_indicator" {
+			server.NewMessage <- &model.Message{
+				UUID:           "typing_indicator_" + *user.User.Username,
+				MessageType:    "stop_typing_indicator",
+				CreatedAt:      time.Now(),
+				MessageContent: getPointer(*user.User.Username + " is typing."),
+				Room:           msg.Room,
+				User:           model.User{UserID: 0, Username: user.User.Username},
+			}
 		} else {
 			// Write
 			user.NewMessage(msg)

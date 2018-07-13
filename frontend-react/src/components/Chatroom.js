@@ -108,7 +108,14 @@ class Chatroom extends Component{
        // console.log(prd_msg)
       }
 
-     }else{
+    }else if (prd_msg[0].message_type==='stop_typing_indicator'){
+      let l = this.state.messageList
+      let newL = l.filter(i=>{
+        return i.uuid !== 'typing_indicator_'+prd_msg[0].username
+      })
+      this.setState({messageList:newL})
+      this.setState({counter:0})
+    }else{
         if (prd_msg[0].message!==""){
             this.setState({ messageList: [...this.state.messageList, prd_msg[0]] })
             cookies.set('LastMessageId', prd_msg[0].message_id, { path: '/' });
@@ -179,15 +186,18 @@ class Chatroom extends Component{
 
     clearTimeout(this.timer);
     this.timer = setTimeout(function(){
-  //    console.log("remove "+this.state.indicatorPosition)
-      let l = this.state.messageList
-      let newL = l.filter(i=>{
-        return i.uuid !== 'typing_indicator_'+this.state.indicatorName
-      })
-  //    console.log(newL);
-      this.setState({messageList:newL})
-      console.log(this.state.messageList)
-      this.setState({counter:0})
+      this.ws.send(
+        JSON.stringify({
+          username: this.state.username===""?this.state.guestname:this.state.username,
+          register:false,
+          guestname:this.state.guestname,
+          message: ("stop typing"),
+          room:this.state.currentRoom,
+          message_type:"stop_typing_indicator",
+          room_id:this.state.currentRoomId,
+        })
+      );
+
     }.bind(this), 1000);
   }
   componentWillMount() {
