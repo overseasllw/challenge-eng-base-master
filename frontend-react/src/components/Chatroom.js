@@ -176,6 +176,7 @@ class Chatroom extends Component{
   }
 
   removeIndicator(){
+
     clearTimeout(this.timer);
     this.timer = setTimeout(function(){
   //    console.log("remove "+this.state.indicatorPosition)

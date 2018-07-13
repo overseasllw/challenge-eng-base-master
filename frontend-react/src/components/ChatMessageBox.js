@@ -12,17 +12,13 @@ class ChatMessageBox extends Component{
                 {
                     this.props.messageList.map((m)=>
                     {
-                        if(m.message_type!=="system-message"){
+                      if(m.message_type!=="system-message"&&m.message_type!=="typing_indicator"){
                             return  <div className="message" key={m.uuid}>
                                     <Label>{m.username}</Label>
                                     <Label color='blue' pointing='left'>{m.message}</Label>
                                 </div>
-                        }else if(m.message_type==="typing_indicator"){
-                          return<div className="message" key={m.uuid}>
-                                  <Label color='grey'>{m.message}</Label>
-                              </div>
-                        }
-                            return<div className="message" key={m.uuid}>
+                      }
+                            return <div className="message" key={m.uuid}>
                                     <Label color='orange'>{m.message}</Label>
                                 </div>
 
