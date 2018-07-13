@@ -104,7 +104,7 @@ class Chatroom extends Component{
       if (this.state.counter===1){
         this.setState({indicatorPosition:this.state.messageList.length})
         this.setState({ messageList: [...this.state.messageList, prd_msg[0]] })
-        console.log(prd_msg)
+       // console.log(prd_msg)
       }
      
      }else{
@@ -156,7 +156,7 @@ class Chatroom extends Component{
   }
 
   isTyping(){
-    console.log(this.state.currentRoomId)
+   // console.log(this.state.currentRoomId)
     if (this.state.currentRoom ===""){
       alert("Please select a chat room!")
       return
@@ -175,17 +175,23 @@ class Chatroom extends Component{
   }
 
   removeIndicator(){
-    console.log("remove "+this.state.indicatorPosition)
-    let l = this.state.messageList
-    l.filter(()=>function(i) {
-      return i === this.state.indicatorPosition
-    })
-   
-    this.setState({messageList:l})
-    console.log(this.state.messageList)
-    this.setState({counter:0})
-  }
+    clearTimeout(this.timer);
 
+    this.timer = setTimeout(function(){
+      console.log("remove "+this.state.indicatorPosition)
+      let l = this.state.messageList
+      l.filter(()=>function(i) {
+        return i !== this.state.indicatorPosition
+      })
+     
+      this.setState({messageList:l})
+      console.log(this.state.messageList)
+      this.setState({counter:0})
+    }, 5000);
+  }
+  componentWillMount() {
+    this.timer = null;
+  }
   sendMessage (message) {
     console.log(this.state.currentRoomId)
     if (this.state.currentRoom ===""){

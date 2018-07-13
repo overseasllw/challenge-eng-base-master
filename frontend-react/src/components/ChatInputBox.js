@@ -40,9 +40,8 @@ class ChatInputBox extends Component{
     }
 
     messageOnChange(event){
-        clearTimeout(this.timer);
         this.setState({message:event.target.value})
-        this.timer = setTimeout(this.props.removeIndicator(), 5000);
+        this.props.removeIndicator()
     }
 
     messageOnKeyDown(event) {
@@ -59,9 +58,7 @@ class ChatInputBox extends Component{
       }
     
 
-      componentWillMount() {
-        this.timer = null;
-    }
+    
 
 }
 
