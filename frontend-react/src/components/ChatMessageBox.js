@@ -10,19 +10,23 @@ class ChatMessageBox extends Component{
             <Segment className="contentHeight">
                 <Container className="messageBox transition visible"  >
                 {
-                    this.props.messageList.map((m)=> 
+                    this.props.messageList.map((m)=>
                     {
                         if(m.message_type!=="system-message"){
                             return  <div className="message" key={m.uuid}>
                                     <Label>{m.username}</Label>
                                     <Label color='blue' pointing='left'>{m.message}</Label>
                                 </div>
+                        }else if(m.message_type==="typing_indicator"){
+                          return<div className="message" key={m.uuid}>
+                                  <Label color='grey'>{m.message}</Label>
+                              </div>
                         }
-                            return <div className="message" key={m.uuid}>
+                            return<div className="message" key={m.uuid}>
                                     <Label color='orange'>{m.message}</Label>
                                 </div>
-                        
-                    })    
+
+                    })
                 }
                 </Container>
                 <Divider horizontal>Message</Divider>
@@ -33,7 +37,7 @@ class ChatMessageBox extends Component{
     /*shouldComponentUpdate(nextProps){
         return !(nextProps.messageList!== this.props.messageList)
     }*/
-    
+
 }
 
 export default ChatMessageBox

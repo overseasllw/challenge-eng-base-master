@@ -22,7 +22,7 @@ class Chatroom extends Component{
       roomOptions:[],
       modalOpen:false,
       roomModal:false,
-      indicatorPosition:0,
+      indicatorName:"",
       counter:0,
     }
    // this.setState({messageList:[]})
@@ -100,13 +100,14 @@ class Chatroom extends Component{
      }else if (prd_msg[0].message_type==='typing_indicator'){
       // console.log("hello")
       this.setState({counter:this.state.counter+1})
-      console.log(this.state.counter)
+    //  console.log(this.state.counter)
       if (this.state.counter===1){
-        this.setState({indicatorPosition:this.state.messageList.length})
+        this.setState({indicatorName:prd_msg[0].username})
+      //  console.log(this.state.indicatorPosition+" position");
         this.setState({ messageList: [...this.state.messageList, prd_msg[0]] })
        // console.log(prd_msg)
       }
-     
+
      }else{
         if (prd_msg[0].message!==""){
             this.setState({ messageList: [...this.state.messageList, prd_msg[0]] })
@@ -176,18 +177,17 @@ class Chatroom extends Component{
 
   removeIndicator(){
     clearTimeout(this.timer);
-
     this.timer = setTimeout(function(){
-      console.log("remove "+this.state.indicatorPosition)
+  //    console.log("remove "+this.state.indicatorPosition)
       let l = this.state.messageList
-      l.filter(()=>function(i) {
-        return i !== this.state.indicatorPosition
+      let newL = l.filter(i=>{
+        return i.uuid !== 'typing_indicator_'+this.state.indicatorName
       })
-     
-      this.setState({messageList:l})
+  //    console.log(newL);
+      this.setState({messageList:newL})
       console.log(this.state.messageList)
       this.setState({counter:0})
-    }, 5000);
+    }.bind(this), 1000);
   }
   componentWillMount() {
     this.timer = null;
