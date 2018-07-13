@@ -135,9 +135,6 @@ class Chatroom extends Component{
     }).then((res) => {
       if (res.length>0){
         cookies.set('LastMessageId', res[res.length-1].message_id, { path: '/' });
-      }else{
-        this.setState({newRoomName:"napa"})
-        this.createNewRoom()
       }
       this.setState({messageList:res})
     }).catch((err) => {
@@ -153,6 +150,11 @@ class Chatroom extends Component{
       this.setState({roomOptions:res})
       if (res.length>0){
         this.setState({ currentRoom : res[0].value,currentRoomId:res[0].key})
+      }else{
+        
+        this.setState({newRoomName:"napa"})
+        this.createNewRoom()
+        
       }
     }).catch((err) => {
       this.setState({err});
