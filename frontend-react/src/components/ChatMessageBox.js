@@ -26,7 +26,7 @@ class ChatMessageBox extends Component{
                 }
                 </Container>
                 <Divider horizontal>Message</Divider>
-                <ChatInputBox onClick={this.props.onClick} typingIndicator={this.props.typingIndicator} removeIndicator={this.removeIndicator}/>
+                <ChatInputBox onClick={this.props.onClick} typingIndicator={this.props.typingIndicator} removeIndicator={this.props.removeIndicator}/>
             </Segment>
         );
     }

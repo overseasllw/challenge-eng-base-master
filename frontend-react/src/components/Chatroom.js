@@ -37,6 +37,7 @@ class Chatroom extends Component{
     this.createNewRoom = this.createNewRoom.bind(this)
     this.setCurrentRoom = this.setCurrentRoom.bind(this)
     this.isTyping = this.isTyping.bind(this)
+    this.removeIndicator = this.removeIndicator.bind(this)
   }
 
    makeid() {
@@ -95,10 +96,11 @@ class Chatroom extends Component{
       this.setState({ message: msg.data });
      if (prd_msg[0].message_type==='user_list'){
        this.setState({userList:prd_msg[0].list})
-       console.log(this.state.userList)
+      // console.log(this.state.userList)
      }else if (prd_msg[0].message_type==='typing_indicator'){
       // console.log("hello")
       this.setState({counter:this.state.counter+1})
+      console.log(this.state.counter)
       if (this.state.counter===1){
         this.setState({indicatorPosition:this.state.messageList.length})
         this.setState({ messageList: [...this.state.messageList, prd_msg[0]] })
@@ -125,6 +127,9 @@ class Chatroom extends Component{
     }).then((res) => {
       if (res.length>0){
         cookies.set('LastMessageId', res[res.length-1].message_id, { path: '/' });
+      }else{
+        this.setState({newRoomName:"napa"})
+        this.createNewRoom()
       }
       this.setState({messageList:res})
     }).catch((err) => {
@@ -147,8 +152,6 @@ class Chatroom extends Component{
   }
 
   generateTimestamp () {
-   // console.log(moment().format("MMMM DD YYYY, h:mm:ss a"))
-    //var iso = new Date().toTimeString() //.toISOString();
     return moment().format("YYYY-MM-DD h:mm:ss");
   }
 
@@ -172,10 +175,15 @@ class Chatroom extends Component{
   }
 
   removeIndicator(){
-    console.log("remove")
-    this.setState({messageList:this.state.messageList.filter(function(i) {
-      return i !== this.state.indicatorPosition
-    })})
+    console.log("remove "+this.state.indicatorPosition)
+    let l = this.state.messageList
+    l.filter(()=>function(i) {
+      return i === this.state.indicatorPosition
+    })
+   
+    this.setState({messageList:l})
+    console.log(this.state.messageList)
+    this.setState({counter:0})
   }
 
   sendMessage (message) {
@@ -184,6 +192,7 @@ class Chatroom extends Component{
       alert("Please select a chat room!")
       return
     }
+    this.setState({counter:0})
       this.ws.send(
         JSON.stringify({
           username: this.state.username===""?this.state.guestname:this.state.username,
